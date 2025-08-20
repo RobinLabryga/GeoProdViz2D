@@ -9,6 +9,10 @@ class Vector2 {
         this.y = y;
     }
 
+    scale(scalar) {
+        return new Vector2(this.x * scalar, this.y * scalar);
+    }
+
     add(other) {
         return new Vector2(this.x + other.x, this.y + other.y);
     }
@@ -32,6 +36,10 @@ class Vector2 {
     rotate() {
         return new Vector2(-this.y, this.x);
     }
+
+    prod_vector(other) {
+        return new GeometricProduct(this.dot(other), this.wedge(other));
+    }
 }
 
 function norm2(v) {
@@ -51,6 +59,17 @@ function norminf(v) {
     return Math.max(Math.abs(v.x), Math.abs(v.y));
 }
 
+class GeometricProduct {
+    constructor(dot, wedge) {
+        this.dot = dot;
+        this.wedge = wedge;
+    }
+
+    prod_vector(vector) {
+        return vector.scale(this.dot).add(vector.rotate().scale(this.wedge));
+    }
+}
+
 class VectorVisualizer {
     constructor() {
         // Zoom constants
@@ -64,9 +83,9 @@ class VectorVisualizer {
         this.canvas = null;
 
         // Vector objects
-        this.vectorA = new Vector2(2, 3);
-        this.vectorB = new Vector2(-1, 2);
-        this.vectorC = new Vector2(3, 2);
+        this.vectorA = new Vector2(2, 1);
+        this.vectorB = new Vector2(-1, 1);
+        this.vectorC = new Vector2(-1, 0);
 
         // Three.js objects
         this.vectorAMesh = null;
@@ -100,7 +119,8 @@ class VectorVisualizer {
             c: true,
             brot: true,
             dot: true,
-            wedge: true
+            wedge: true,
+            prod: true,
         };
 
         this.init();
@@ -239,6 +259,7 @@ class VectorVisualizer {
         const vectorBRotColor = this.getCSSColor('--vector-brot-color');
         const dotColor = this.getCSSColor('--dot-a-b-color');
         const wedgeColor = this.getCSSColor('--wedge-a-b-color');
+        const prodColor = this.getCSSColor('--prod-a-b-c-color');
 
         this.vectorAMesh = this.createVector(this.vectorA, vectorAColor, 'A');
         this.vectorBMesh = this.createVector(this.vectorB, vectorBColor, 'B');
@@ -246,6 +267,7 @@ class VectorVisualizer {
         this.vectorBRotMesh = this.createVector(this.vectorB.rotate(), vectorBRotColor, 'BRot');
         this.dotMesh = this.createParallelogram(this.vectorA, this.vectorB.rotate(), dotColor);
         this.wedgeMesh = this.createParallelogram(this.vectorA, this.vectorB, wedgeColor);
+        this.vectorProdMesh = this.createVector(this.vectorA.prod_vector(this.vectorB).prod_vector(this.vectorC), prodColor, 'A\'B\'C\'');
 
         // Create dashed helper vectors for parallelogram construction
         this.vectorADashedMeshWedge = this.createDashedVector(this.vectorA, vectorAColor, 'A\'Wedge');
@@ -263,6 +285,7 @@ class VectorVisualizer {
         this.scene.add(this.vectorAMesh);
         this.scene.add(this.vectorBMesh);
         this.scene.add(this.vectorCMesh);
+        this.scene.add(this.vectorProdMesh);
     }
 
     createVector(vector, color, label) {
@@ -554,6 +577,9 @@ class VectorVisualizer {
                 { x: vectorSum.x, y: vectorSum.y }
             );
         }
+
+        this.updateVector(this.vectorProdMesh, this.vectorA.prod_vector(this.vectorB).prod_vector(this.vectorC));
+
         this.updateUI();
     }
 
@@ -565,6 +591,7 @@ class VectorVisualizer {
         this.updateVectorDisplay('vector-brot-display', this.vectorB.rotate().x, this.vectorB.rotate().y);
         this.updateWedgeDisplay('wedge-a-b-display', this.vectorA, this.vectorB);
         this.updateDotDisplay('dot-a-b-display', this.vectorA, this.vectorB)
+        this.updateVectorDisplay('prod-a-b-c-display', this.vectorA.prod_vector(this.vectorB).prod_vector(this.vectorC).x, this.vectorA.prod_vector(this.vectorB).prod_vector(this.vectorC).y);
     }
 
     updateVectorDisplay(elementId, x, y) {
@@ -803,9 +830,9 @@ class VectorVisualizer {
     }
 
     resetVectors() {
-        this.vectorA = new Vector2(2, 3);
-        this.vectorB = new Vector2(-1, 2);
-        this.vectorC = new Vector2(3, 2);
+        this.vectorA = new Vector2(2, 1);
+        this.vectorB = new Vector2(-1, 1);
+        this.vectorC = new Vector2(-1, 0);
 
         this.updateVector(this.vectorAMesh, this.vectorA);
         this.updateVector(this.vectorBMesh, this.vectorB);
@@ -905,6 +932,10 @@ class VectorVisualizer {
 
         if (this.vectorBRotDashedMesh) {
             this.vectorBRotDashedMesh.visible = this.visibility.dot && this.visibility.brot;
+        }
+
+        if (this.vectorProdMesh) {
+            this.vectorProdMesh.visible = this.visibility.prod;
         }
     }
 

@@ -13,6 +13,7 @@
     --vector-c-color: hsl(67, 100%, 50%);
     --wedge-a-b-color: hsl(220, 85%, 65%);
     --dot-a-b-color: hsl(30, 100%, 50%);
+    --prod-a-b-c-color: hsl(300, 100%, 50%);
 
     /* Dark theme neutral colors (default) */
     --color-text: hsl(210, 20%, 98%);
@@ -453,6 +454,10 @@ a:focus {
 
 .dot-a-b {
     background-color: var(--dot-a-b-color);
+}
+
+.prod-a-b-c {
+    background-color: var(--prod-a-b-c-color);
 }
 
 .vector-coords {
