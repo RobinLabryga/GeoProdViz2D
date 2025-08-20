@@ -178,7 +178,7 @@ class VectorVisualizer {
 
         // Scene
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x0f172a);
+        this.scene.background = new THREE.Color(this.getCSSColor('--color-surface'));
 
         const container = document.querySelector('.canvas-container');
         const width = container.clientWidth;
