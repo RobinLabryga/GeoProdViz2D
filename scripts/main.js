@@ -37,6 +37,10 @@ class Vector2 {
         return new Vector2(-this.y, this.x);
     }
 
+    normalize() {
+        return this.scale(1.0 / norm2(this));
+    }
+
     prod_vector(other) {
         return new GeometricProduct(this.dot(other), this.wedge(other));
     }
@@ -695,6 +699,11 @@ class VectorVisualizer {
                 this.toggleVisibility(vectorType);
             });
         });
+
+        // Normalize button handlers
+        document.getElementById('normalize-a').addEventListener('click', () => this.normalizeVector('a'));
+        document.getElementById('normalize-b').addEventListener('click', () => this.normalizeVector('b'));
+        document.getElementById('normalize-c').addEventListener('click', () => this.normalizeVector('c'));
     }
 
     getMousePosition(event) {
@@ -937,6 +946,44 @@ class VectorVisualizer {
         if (this.vectorProdMesh) {
             this.vectorProdMesh.visible = this.visibility.prod;
         }
+    }
+
+    normalizeVector(vectorType) {
+        let vector, mesh, otherMesh;
+        
+        switch(vectorType) {
+            case 'a':
+                vector = this.vectorA.normalize();
+                this.vectorA = vector;
+                mesh = this.vectorAMesh;
+                break;
+            case 'b':
+                vector = this.vectorB.normalize();
+                this.vectorB = vector;
+                mesh = this.vectorBMesh;
+                otherMesh = this.vectorBRotMesh;
+                break;
+            case 'c':
+                vector = this.vectorC.normalize();
+                this.vectorC = vector;
+                mesh = this.vectorCMesh;
+                break;
+            default:
+                return;
+        }
+
+        // Update the vector mesh
+        if (mesh) {
+            this.updateVector(mesh, vector);
+        }
+
+        // Update rotated vector if it's vector B
+        if (vectorType === 'b' && otherMesh) {
+            this.updateVector(otherMesh, this.vectorB.rotate());
+        }
+
+        // Update all related calculations and displays
+        this.updateVectors();
     }
 
     animate() {

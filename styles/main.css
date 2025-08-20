@@ -352,6 +352,27 @@ a:focus {
     transform: translateY(0);
 }
 
+.btn-normalize {
+    background: hsla(var(--color-background-hsl), 0.2);
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.75rem;
+    border-radius: var(--radius-md);
+    min-width: auto;
+    flex-shrink: 0;
+}
+
+.btn-normalize:hover {
+    background: var(--color-surface);
+    color: var(--color-text);
+    border-color: var(--color-border-light);
+}
+
+.btn-normalize:active {
+    transform: scale(0.95);
+}
+
 /* Sidebar */
 .sidebar {
     display: flex;
@@ -398,6 +419,14 @@ a:focus {
     align-items: center;
     gap: var(--space-sm);
     margin-bottom: var(--space-sm);
+    justify-content: space-between;
+}
+
+.vector-info-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-grow: 1;
 }
 
 .vector-color {
