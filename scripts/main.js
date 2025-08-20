@@ -57,6 +57,34 @@ class VectorVisualizer {
         this.animate();
     }
 
+    getCSSColor(cssVariable) {
+        // Get the CSS variable value from the document root
+        const cssValue = getComputedStyle(document.documentElement)
+            .getPropertyValue(cssVariable)
+            .trim();
+        
+        // Convert CSS color to hex format for Three.js
+        // Create a temporary element to get the computed color
+        const tempElement = document.createElement('div');
+        tempElement.style.color = cssValue;
+        document.body.appendChild(tempElement);
+        
+        const computedColor = getComputedStyle(tempElement).color;
+        document.body.removeChild(tempElement);
+        
+        // Convert rgb(r, g, b) to hex
+        const rgbMatch = computedColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (rgbMatch) {
+            const r = parseInt(rgbMatch[1]);
+            const g = parseInt(rgbMatch[2]);
+            const b = parseInt(rgbMatch[3]);
+            return (r << 16) | (g << 8) | b;
+        }
+        
+        // Fallback to a default color if parsing fails
+        return 0xff0000; // Red as fallback
+    }
+
     setupThreeJS() {
         this.canvas = document.getElementById('threejs-canvas');
 
@@ -146,13 +174,18 @@ class VectorVisualizer {
     }
 
     createVectors() {
-        this.vectorAMesh = this.createVector(this.vectorA, 0xef4444, 'A');
-        this.vectorBMesh = this.createVector(this.vectorB, 0x3b82f6, 'B');
-        this.vectorSumMesh = this.createVector(this.vectorSum, 0x10b981, 'Sum');
+        // Get colors from CSS variables
+        const vectorAColor = this.getCSSColor('--vector-a-color');
+        const vectorBColor = this.getCSSColor('--vector-b-color');
+        const vectorSumColor = this.getCSSColor('--vector-sum-color');
+
+        this.vectorAMesh = this.createVector(this.vectorA, vectorAColor, 'A');
+        this.vectorBMesh = this.createVector(this.vectorB, vectorBColor, 'B');
+        this.vectorSumMesh = this.createVector(this.vectorSum, vectorSumColor, 'Sum');
 
         // Create dashed helper vectors for parallelogram construction
-        this.vectorADashedMesh = this.createDashedVector(this.vectorA, 0xef4444, 'A\'');
-        this.vectorBDashedMesh = this.createDashedVector(this.vectorB, 0x3b82f6, 'B\'');
+        this.vectorADashedMesh = this.createDashedVector(this.vectorA, vectorAColor, 'A\'');
+        this.vectorBDashedMesh = this.createDashedVector(this.vectorB, vectorBColor, 'B\'');
 
         this.scene.add(this.vectorAMesh);
         this.scene.add(this.vectorBMesh);

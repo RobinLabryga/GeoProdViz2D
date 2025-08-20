@@ -6,6 +6,11 @@
     --color-secondary: hsl(342, 89%, 58%);
     --color-accent: hsl(51, 100%, 60%);
 
+    /* Vector-specific colors */
+    --vector-a-color: hsl(14, 90%, 60%);
+    --vector-b-color: hsl(164, 70%, 55%);
+    --vector-sum-color: hsl(220, 85%, 65%);
+
     /* Dark theme neutral colors (default) */
     --color-text: hsl(210, 20%, 98%);
     --color-text-muted: hsl(210, 10%, 75%);
@@ -156,6 +161,7 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -397,9 +403,17 @@ a:focus {
     border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.vector-a { background-color: var(--color-secondary); }
-.vector-b { background-color: var(--color-primary); }
-.vector-sum { background-color: var(--color-accent); }
+.vector-a {
+    background-color: var(--vector-a-color);
+}
+
+.vector-b {
+    background-color: var(--vector-b-color);
+}
+
+.vector-sum {
+    background-color: var(--vector-sum-color);
+}
 
 .vector-coords {
     display: flex;
@@ -433,7 +447,7 @@ a:focus {
     font-size: 0.875rem;
 }
 
-.vector-fallback > span {
+.vector-fallback>span {
     font-size: 1.5rem;
     color: var(--color-text);
     font-weight: 300;
@@ -503,12 +517,12 @@ a:focus {
         grid-template-columns: 1fr;
         grid-template-rows: 1fr auto;
     }
-    
+
     .sidebar {
         flex-direction: row;
         gap: var(--space-md);
     }
-    
+
     .info-panel,
     .instructions {
         flex: 1;
@@ -519,20 +533,20 @@ a:focus {
     .header {
         padding: var(--space-lg) var(--space-md);
     }
-    
+
     .title {
         font-size: 2rem;
     }
-    
+
     .main-content {
         padding: var(--space-md);
         gap: var(--space-md);
     }
-    
+
     .sidebar {
         flex-direction: column;
     }
-    
+
     .controls {
         flex-direction: column;
         gap: var(--space-sm);
@@ -543,11 +557,11 @@ a:focus {
     .title {
         font-size: 1.75rem;
     }
-    
+
     .subtitle {
         font-size: 1rem;
     }
-    
+
     .info-panel,
     .instructions {
         padding: var(--space-md);
@@ -574,8 +588,15 @@ a:focus {
 
 /* Loading Animation */
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
 .loading {
