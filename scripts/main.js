@@ -310,7 +310,8 @@ class VectorVisualizer {
         group.add(shaft);
 
         // Arrow head
-        const headGeometry = new THREE.ConeGeometry(0.15, 0.4, 8);
+        const headHeight = 0.15
+        const headGeometry = new THREE.ConeGeometry(headHeight / 2.0, headHeight, 3);
         const headMaterial = new THREE.MeshBasicMaterial({ color: color });
         const head = new THREE.Mesh(headGeometry, headMaterial);
 
@@ -322,7 +323,7 @@ class VectorVisualizer {
 
         // Draggable endpoint (only for vectors A and B)
         if (label === 'A' || label === 'B' || label === 'C') {
-            const endpointGeometry = new THREE.CircleGeometry(0.2, 16);
+            const endpointGeometry = new THREE.CircleGeometry(0.15, 6);
             const endpointMaterial = new THREE.MeshBasicMaterial({
                 color: color,
                 transparent: true,
@@ -379,7 +380,8 @@ class VectorVisualizer {
         group.add(shaft);
 
         // Small arrow head for dashed vectors
-        const headGeometry = new THREE.ConeGeometry(0.1, 0.25, 8);
+        const headHeight = 0.15 / 2.0
+        const headGeometry = new THREE.ConeGeometry(headHeight / 2.0, headHeight, 3);
         const headMaterial = new THREE.MeshBasicMaterial({
             color: color,
             transparent: true,
