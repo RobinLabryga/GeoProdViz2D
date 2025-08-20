@@ -66,10 +66,12 @@ class VectorVisualizer {
         // Vector objects
         this.vectorA = new Vector2(2, 3);
         this.vectorB = new Vector2(-1, 2);
+        this.vectorC = new Vector2(3, 2);
 
         // Three.js objects
         this.vectorAMesh = null;
         this.vectorBMesh = null;
+        this.vectorCMesh = null;
         this.vectorBRotMesh = null;
         this.dotMesh = null; // Parallelogram spanned by A and B rotated by 90° CCW
         this.wedgeMesh = null; // Parallelogram spanned by A and B
@@ -95,6 +97,7 @@ class VectorVisualizer {
         this.visibility = {
             a: true,
             b: true,
+            c: true,
             brot: true,
             dot: true,
             wedge: true
@@ -232,12 +235,14 @@ class VectorVisualizer {
         // Get colors from CSS variables
         const vectorAColor = this.getCSSColor('--vector-a-color');
         const vectorBColor = this.getCSSColor('--vector-b-color');
+        const vectorCColor = this.getCSSColor('--vector-c-color');
         const vectorBRotColor = this.getCSSColor('--vector-brot-color');
         const dotColor = this.getCSSColor('--dot-a-b-color');
         const wedgeColor = this.getCSSColor('--wedge-a-b-color');
 
         this.vectorAMesh = this.createVector(this.vectorA, vectorAColor, 'A');
         this.vectorBMesh = this.createVector(this.vectorB, vectorBColor, 'B');
+        this.vectorCMesh = this.createVector(this.vectorC, vectorCColor, 'C');
         this.vectorBRotMesh = this.createVector(this.vectorB.rotate(), vectorBRotColor, 'BRot');
         this.dotMesh = this.createParallelogram(this.vectorA, this.vectorB.rotate(), dotColor);
         this.wedgeMesh = this.createParallelogram(this.vectorA, this.vectorB, wedgeColor);
@@ -254,9 +259,10 @@ class VectorVisualizer {
         this.scene.add(this.vectorBDashedMesh);
         this.scene.add(this.vectorADashedMeshDot)
         this.scene.add(this.vectorBRotDashedMesh);
+        this.scene.add(this.vectorBRotMesh);
         this.scene.add(this.vectorAMesh);
         this.scene.add(this.vectorBMesh);
-        this.scene.add(this.vectorBRotMesh);
+        this.scene.add(this.vectorCMesh);
     }
 
     createVector(vector, color, label) {
@@ -288,7 +294,7 @@ class VectorVisualizer {
         group.add(head);
 
         // Draggable endpoint (only for vectors A and B)
-        if (label === 'A' || label === 'B') {
+        if (label === 'A' || label === 'B' || label === 'C') {
             const endpointGeometry = new THREE.CircleGeometry(0.2, 16);
             const endpointMaterial = new THREE.MeshBasicMaterial({
                 color: color,
@@ -555,6 +561,7 @@ class VectorVisualizer {
         // Update LaTeX vector displays
         this.updateVectorDisplay('vector-a-display', this.vectorA.x, this.vectorA.y);
         this.updateVectorDisplay('vector-b-display', this.vectorB.x, this.vectorB.y);
+        this.updateVectorDisplay('vector-c-display', this.vectorC.x, this.vectorC.y);
         this.updateVectorDisplay('vector-brot-display', this.vectorB.rotate().x, this.vectorB.rotate().y);
         this.updateWedgeDisplay('wedge-a-b-display', this.vectorA, this.vectorB);
         this.updateDotDisplay('dot-a-b-display', this.vectorA, this.vectorB)
@@ -722,6 +729,9 @@ class VectorVisualizer {
                 this.vectorB = new Vector2(worldX, worldY);
                 this.updateVector(this.vectorBMesh, this.vectorB);
                 this.updateVector(this.vectorBRotMesh, this.vectorB.rotate());
+            } else if (this.dragTarget === 'c') {
+                this.vectorC = new Vector2(worldX, worldY);
+                this.updateVector(this.vectorCMesh, this.vectorC);
             }
 
             this.updateVectors();
@@ -795,9 +805,11 @@ class VectorVisualizer {
     resetVectors() {
         this.vectorA = new Vector2(2, 3);
         this.vectorB = new Vector2(-1, 2);
+        this.vectorC = new Vector2(3, 2);
 
         this.updateVector(this.vectorAMesh, this.vectorA);
         this.updateVector(this.vectorBMesh, this.vectorB);
+        this.updateVector(this.vectorCMesh, this.vectorC);
         this.updateVector(this.vectorBRotMesh, this.vectorB.rotate());
         this.updateVectors();
 
@@ -861,6 +873,10 @@ class VectorVisualizer {
 
         if (this.vectorBMesh) {
             this.vectorBMesh.visible = this.visibility.b;
+        }
+
+        if (this.vectorCMesh) {
+            this.vectorCMesh.visible = this.visibility.c;
         }
 
         if (this.vectorBRotMesh) {

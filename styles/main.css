@@ -443,6 +443,10 @@ a:focus {
     background-color: var(--vector-brot-color);
 }
 
+.vector-c {
+    background-color: var(--vector-c-color);
+}
+
 .wedge-a-b {
     background-color: var(--wedge-a-b-color);
 }
