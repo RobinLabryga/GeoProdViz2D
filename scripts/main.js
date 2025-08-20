@@ -3,6 +3,54 @@
  * Interactive 2D geometric product visualization
  */
 
+class Vector2 {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    add(other) {
+        return new Vector2(this.x + other.x, this.y + other.y);
+    }
+
+    sub(other) {
+        return new Vector2(this.x - other.x, this.y - other.y);
+    }
+
+    neg() {
+        return new Vector2(-this.x, -this.y);
+    }
+
+    dot(other) {
+        return this.x * other.x + this.y * other.y
+    }
+
+    wedge(other) {
+        return this.x * other.y - this.y * other.x;
+    }
+
+    rotate() {
+        return new Vector2(-this.y, this.x);
+    }
+}
+
+function norm2(v) {
+    return Math.sqrt(v.dot(v));
+}
+
+function norm1(v) {
+    return Math.abs(v.x) + Math.abs(v.y);
+}
+
+function norm0(v) {
+    // "norm0" is usually the number of nonzero components (pseudo-norm)
+    return (v.x !== 0 ? 1 : 0) + (v.y !== 0 ? 1 : 0);
+}
+
+function norminf(v) {
+    return Math.max(Math.abs(v.x), Math.abs(v.y));
+}
+
 class VectorVisualizer {
     constructor() {
         // Zoom constants
@@ -16,16 +64,19 @@ class VectorVisualizer {
         this.canvas = null;
 
         // Vector objects
-        this.vectorA = { x: 2, y: 3 };
-        this.vectorB = { x: -1, y: 2 };
-        this.vectorSum = { x: 0, y: 0 };
+        this.vectorA = new Vector2(2, 3);
+        this.vectorB = new Vector2(-1, 2);
 
         // Three.js objects
         this.vectorAMesh = null;
         this.vectorBMesh = null;
-        this.vectorSumMesh = null;
-        this.vectorADashedMesh = null; // A vector from tip of B to tip of Sum
+        this.vectorBRotMesh = null;
+        this.dotMesh = null; // Parallelogram spanned by A and B rotated by 90° CCW
+        this.wedgeMesh = null; // Parallelogram spanned by A and B
+        this.vectorADashedMeshWedge = null; // A vector from tip of B to tip of Sum
+        this.vectorADashedMeshDot = null;
         this.vectorBDashedMesh = null; // B vector from tip of A to tip of Sum
+        this.vectorBRotDashedMesh = null;
         this.gridMesh = null;
         this.axesMesh = null;
 
@@ -47,7 +98,7 @@ class VectorVisualizer {
         this.setupThreeJS();
         this.createScene();
         this.setupEventListeners();
-        this.updateVectorSum();
+        this.updateVectors();
         
         // Ensure proper sizing after layout is complete
         requestAnimationFrame(() => {
@@ -163,12 +214,6 @@ class VectorVisualizer {
         const yAxis = new THREE.Line(yGeometry, yMaterial);
         axesGroup.add(yAxis);
 
-        // Origin point
-        const originGeometry = new THREE.CircleGeometry(0.1, 16);
-        const originMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        const origin = new THREE.Mesh(originGeometry, originMaterial);
-        axesGroup.add(origin);
-
         this.axesMesh = axesGroup;
         this.scene.add(axesGroup);
     }
@@ -177,21 +222,31 @@ class VectorVisualizer {
         // Get colors from CSS variables
         const vectorAColor = this.getCSSColor('--vector-a-color');
         const vectorBColor = this.getCSSColor('--vector-b-color');
-        const vectorSumColor = this.getCSSColor('--vector-sum-color');
+        const vectorBRotColor = this.getCSSColor('--vector-brot-color');
+        const dotColor = this.getCSSColor('--dot-a-b-color');
+        const wedgeColor = this.getCSSColor('--wedge-a-b-color');
 
         this.vectorAMesh = this.createVector(this.vectorA, vectorAColor, 'A');
         this.vectorBMesh = this.createVector(this.vectorB, vectorBColor, 'B');
-        this.vectorSumMesh = this.createVector(this.vectorSum, vectorSumColor, 'Sum');
+        this.vectorBRotMesh = this.createVector(this.vectorB.rotate(), vectorBRotColor, 'BRot');
+        this.dotMesh = this.createParallelogram(this.vectorA, this.vectorB.rotate(), dotColor);
+        this.wedgeMesh = this.createParallelogram(this.vectorA, this.vectorB, wedgeColor);
 
         // Create dashed helper vectors for parallelogram construction
-        this.vectorADashedMesh = this.createDashedVector(this.vectorA, vectorAColor, 'A\'');
+        this.vectorADashedMeshWedge = this.createDashedVector(this.vectorA, vectorAColor, 'A\'Wedge');
+        this.vectorADashedMeshDot = this.createDashedVector(this.vectorA, vectorAColor, 'A\'Dot')
         this.vectorBDashedMesh = this.createDashedVector(this.vectorB, vectorBColor, 'B\'');
+        this.vectorBRotDashedMesh = this.createDashedVector(this.vectorB.rotate(), vectorBRotColor, 'BRot\'')
 
+        this.scene.add(this.wedgeMesh);
+        this.scene.add(this.dotMesh);
+        this.scene.add(this.vectorADashedMeshWedge);
+        this.scene.add(this.vectorBDashedMesh);
+        this.scene.add(this.vectorADashedMeshDot)
+        this.scene.add(this.vectorBRotDashedMesh);
         this.scene.add(this.vectorAMesh);
         this.scene.add(this.vectorBMesh);
-        this.scene.add(this.vectorSumMesh);
-        this.scene.add(this.vectorADashedMesh);
-        this.scene.add(this.vectorBDashedMesh);
+        this.scene.add(this.vectorBRotMesh);
     }
 
     createVector(vector, color, label) {
@@ -299,6 +354,71 @@ class VectorVisualizer {
         return group;
     }
 
+    createParallelogram(vectorA, vectorB, color) {
+        const group = new THREE.Group();
+
+        // Calculate the four vertices of the parallelogram
+        const origin = new THREE.Vector3(0, 0, 0);
+        const vertexA = new THREE.Vector3(vectorA.x, vectorA.y, 0);
+        const vertexB = new THREE.Vector3(vectorB.x, vectorB.y, 0);
+        const vertexSum = new THREE.Vector3(vectorA.x + vectorB.x, vectorA.y + vectorB.y, 0);
+
+        // Create parallelogram geometry
+        const geometry = new THREE.BufferGeometry();
+        const vertices = new Float32Array([
+            // First triangle: origin, A, Sum
+            origin.x, origin.y, origin.z,
+            vertexA.x, vertexA.y, vertexA.z,
+            vertexSum.x, vertexSum.y, vertexSum.z,
+            // Second triangle: origin, Sum, B
+            origin.x, origin.y, origin.z,
+            vertexSum.x, vertexSum.y, vertexSum.z,
+            vertexB.x, vertexB.y, vertexB.z
+        ]);
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        geometry.computeVertexNormals();
+
+        // Create material with transparency
+        const material = new THREE.MeshBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: 0.3,
+            side: THREE.DoubleSide
+        });
+
+        const parallelogram = new THREE.Mesh(geometry, material);
+        group.add(parallelogram);
+
+        // Add outline
+        const outlineGeometry = new THREE.BufferGeometry();
+        const outlineVertices = new Float32Array([
+            origin.x, origin.y, origin.z,
+            vertexA.x, vertexA.y, vertexA.z,
+            vertexSum.x, vertexSum.y, vertexSum.z,
+            vertexB.x, vertexB.y, vertexB.z,
+            origin.x, origin.y, origin.z  // Close the loop
+        ]);
+        outlineGeometry.setAttribute('position', new THREE.BufferAttribute(outlineVertices, 3));
+
+        const outlineMaterial = new THREE.LineBasicMaterial({
+            color: color,
+            linewidth: 2,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const outline = new THREE.LineLoop(outlineGeometry, outlineMaterial);
+        group.add(outline);
+
+        group.userData = {
+            vectorType: 'parallelogram',
+            color: color
+        };
+
+        return group;
+    }
+
     updateVector(vectorMesh, vector) {
         // Update shaft
         const shaft = vectorMesh.children[0];
@@ -339,31 +459,85 @@ class VectorVisualizer {
         head.rotation.z = angle - Math.PI / 2;
     }
 
-    updateVectorSum() {
-        this.vectorSum.x = this.vectorA.x + this.vectorB.x;
-        this.vectorSum.y = this.vectorA.y + this.vectorB.y;
+    updateParallelogram(parallelogramMesh, vectorA, vectorB) {
+        // Calculate the four vertices of the parallelogram
+        const origin = new THREE.Vector3(0, 0, 0);
+        const vertexA = new THREE.Vector3(vectorA.x, vectorA.y, 0);
+        const vertexB = new THREE.Vector3(vectorB.x, vectorB.y, 0);
+        const vertexSum = new THREE.Vector3(vectorA.x + vectorB.x, vectorA.y + vectorB.y, 0);
 
-        if (this.vectorSumMesh) {
-            this.updateVector(this.vectorSumMesh, this.vectorSum);
+        // Update the parallelogram mesh (first child)
+        const parallelogram = parallelogramMesh.children[0];
+        const positions = parallelogram.geometry.attributes.position.array;
+        
+        // First triangle: origin, A, Sum
+        positions[0] = origin.x; positions[1] = origin.y; positions[2] = origin.z;
+        positions[3] = vertexA.x; positions[4] = vertexA.y; positions[5] = vertexA.z;
+        positions[6] = vertexSum.x; positions[7] = vertexSum.y; positions[8] = vertexSum.z;
+        
+        // Second triangle: origin, Sum, B
+        positions[9] = origin.x; positions[10] = origin.y; positions[11] = origin.z;
+        positions[12] = vertexSum.x; positions[13] = vertexSum.y; positions[14] = vertexSum.z;
+        positions[15] = vertexB.x; positions[16] = vertexB.y; positions[17] = vertexB.z;
+        
+        parallelogram.geometry.attributes.position.needsUpdate = true;
+        parallelogram.geometry.computeVertexNormals();
+
+        // Update the outline (second child)
+        const outline = parallelogramMesh.children[1];
+        const outlinePositions = outline.geometry.attributes.position.array;
+        
+        outlinePositions[0] = origin.x; outlinePositions[1] = origin.y; outlinePositions[2] = origin.z;
+        outlinePositions[3] = vertexA.x; outlinePositions[4] = vertexA.y; outlinePositions[5] = vertexA.z;
+        outlinePositions[6] = vertexSum.x; outlinePositions[7] = vertexSum.y; outlinePositions[8] = vertexSum.z;
+        outlinePositions[9] = vertexB.x; outlinePositions[10] = vertexB.y; outlinePositions[11] = vertexB.z;
+        outlinePositions[12] = origin.x; outlinePositions[13] = origin.y; outlinePositions[14] = origin.z;
+        
+        outline.geometry.attributes.position.needsUpdate = true;
+    }
+
+    updateVectors() {
+        if (this.wedgeMesh) {
+            this.updateParallelogram(this.wedgeMesh, this.vectorA, this.vectorB);
         }
-
+        
+        if (this.dotMesh) {
+            this.updateParallelogram(this.dotMesh, this.vectorA, this.vectorB.rotate());
+        }
+        
         // Update dashed vectors for parallelogram construction
-        if (this.vectorADashedMesh && this.vectorBDashedMesh) {
+        if (this.vectorADashedMeshWedge && this.vectorBDashedMesh) {
+            const vectorSum = this.vectorA.add(this.vectorB)
             // Vector A dashed: from tip of B to tip of Sum
             this.updateDashedVector(
-                this.vectorADashedMesh,
+                this.vectorADashedMeshWedge,
                 { x: this.vectorB.x, y: this.vectorB.y },
-                { x: this.vectorSum.x, y: this.vectorSum.y }
+                { x: vectorSum.x, y: vectorSum.y }
             );
 
             // Vector B dashed: from tip of A to tip of Sum
             this.updateDashedVector(
                 this.vectorBDashedMesh,
                 { x: this.vectorA.x, y: this.vectorA.y },
-                { x: this.vectorSum.x, y: this.vectorSum.y }
+                { x: vectorSum.x, y: vectorSum.y }
             );
         }
 
+        if (this.vectorADashedMeshDot && this.vectorBRotDashedMesh) {
+            const vectorSum = this.vectorA.add(this.vectorB.rotate());
+
+            this.updateDashedVector(
+                this.vectorADashedMeshDot,
+                { x: this.vectorB.rotate().x, y: this.vectorB.rotate().y },
+                { x: vectorSum.x, y: vectorSum.y }
+            );
+
+            this.updateDashedVector(
+                this.vectorBRotDashedMesh,
+                { x: this.vectorA.x, y: this.vectorA.y },
+                { x: vectorSum.x, y: vectorSum.y }
+            );
+        }
         this.updateUI();
     }
 
@@ -371,20 +545,14 @@ class VectorVisualizer {
         // Update LaTeX vector displays
         this.updateVectorDisplay('vector-a-display', this.vectorA.x, this.vectorA.y);
         this.updateVectorDisplay('vector-b-display', this.vectorB.x, this.vectorB.y);
-        this.updateVectorDisplay('vector-sum-display', this.vectorSum.x, this.vectorSum.y);
-
-        // Update magnitudes
-        document.getElementById('vector-a-mag').textContent =
-            Math.sqrt(this.vectorA.x ** 2 + this.vectorA.y ** 2).toFixed(2);
-        document.getElementById('vector-b-mag').textContent =
-            Math.sqrt(this.vectorB.x ** 2 + this.vectorB.y ** 2).toFixed(2);
-        document.getElementById('vector-sum-mag').textContent =
-            Math.sqrt(this.vectorSum.x ** 2 + this.vectorSum.y ** 2).toFixed(2);
+        this.updateVectorDisplay('vector-brot-display', this.vectorB.rotate().x, this.vectorB.rotate().y);
+        this.updateWedgeDisplay('wedge-a-b-display', this.vectorA, this.vectorB);
+        this.updateDotDisplay('dot-a-b-display', this.vectorA, this.vectorB)
     }
 
     updateVectorDisplay(elementId, x, y) {
         const element = document.getElementById(elementId);
-        const latex = `\\begin{pmatrix} ${x.toFixed(1)} \\\\ ${y.toFixed(1)} \\end{pmatrix}`;
+        const latex = `\\begin{pmatrix} ${x.toFixed(2)} \\\\ ${y.toFixed(2)} \\end{pmatrix}`;
 
         // Re-render MathJax if available
         if (window.MathJax?.typesetPromise) {
@@ -395,8 +563,8 @@ class VectorVisualizer {
                 element.innerHTML = `<div class="vector-fallback">
                     <span>(</span>
                     <div class="vector-coords">
-                        <span>${x.toFixed(1)}</span>
-                        <span>${y.toFixed(1)}</span>
+                        <span>${x.toFixed(2)}</span>
+                        <span>${y.toFixed(2)}</span>
                     </div>
                     <span>)</span>
                 </div>`;
@@ -411,6 +579,50 @@ class VectorVisualizer {
                 </div>
                 <span>)</span>
             </div>`;
+        }
+    }
+
+    updateDotDisplay(elementId, vectorA, vectorB) {
+        const element = document.getElementById(elementId);
+
+        const dot = vectorA.dot(vectorB);
+        
+        // Update the entire LaTeX expression
+        const latex = `\\vec{a}\\cdot\\vec{b}I = \\vec{a}\\wedge\\vec{b}_\\perp = ${dot.toFixed(2)} I`;
+
+        // Re-render MathJax if available
+        if (window.MathJax?.typesetPromise) {
+            element.innerHTML = `$${latex}$`;
+            window.MathJax.typesetPromise([element]).catch((err) => {
+                console.warn('MathJax rendering error:', err);
+                // Fallback to simple text display
+                element.innerHTML = `a.bI = ${dot.toFixed(2)} I`;
+            });
+        } else {
+            // Fallback for when MathJax isn't loaded
+            element.innerHTML = `a.bI = ${dot.toFixed(2)} I`;
+        }
+    }
+
+    updateWedgeDisplay(elementId, vectorA, vectorB) {
+        const element = document.getElementById(elementId);
+
+        const wedge = vectorA.wedge(vectorB);
+        
+        // Update the entire LaTeX expression
+        const latex = `\\vec{a}\\wedge\\vec{b} = ${wedge.toFixed(2)} I`;
+
+        // Re-render MathJax if available
+        if (window.MathJax?.typesetPromise) {
+            element.innerHTML = `$${latex}$`;
+            window.MathJax.typesetPromise([element]).catch((err) => {
+                console.warn('MathJax rendering error:', err);
+                // Fallback to simple text display
+                element.innerHTML = `a∧b = ${wedge.toFixed(2)} I`;
+            });
+        } else {
+            // Fallback for when MathJax isn't loaded
+            element.innerHTML = `a∧b = ${wedge.toFixed(2)} I`;
         }
     }
 
@@ -485,16 +697,15 @@ class VectorVisualizer {
 
             // Update the appropriate vector
             if (this.dragTarget === 'a') {
-                this.vectorA.x = worldX;
-                this.vectorA.y = worldY;
+                this.vectorA = new Vector2(worldX, worldY);
                 this.updateVector(this.vectorAMesh, this.vectorA);
             } else if (this.dragTarget === 'b') {
-                this.vectorB.x = worldX;
-                this.vectorB.y = worldY;
+                this.vectorB = new Vector2(worldX, worldY);
                 this.updateVector(this.vectorBMesh, this.vectorB);
+                this.updateVector(this.vectorBRotMesh, this.vectorB.rotate());
             }
 
-            this.updateVectorSum();
+            this.updateVectors();
         } else {
             // Check if hovering over draggable objects
             this.raycaster.setFromCamera(this.mouse, this.camera);
@@ -563,12 +774,12 @@ class VectorVisualizer {
     }
 
     resetVectors() {
-        this.vectorA = { x: 2, y: 3 };
-        this.vectorB = { x: -1, y: 2 };
+        this.vectorA = new Vector2(2, 3);
+        this.vectorB = new Vector2(-1, 2);
 
         this.updateVector(this.vectorAMesh, this.vectorA);
         this.updateVector(this.vectorBMesh, this.vectorB);
-        this.updateVectorSum();
+        this.updateVectors();
 
         // Reset camera and zoom
         this.zoom = this.DEFAULT_ZOOM;

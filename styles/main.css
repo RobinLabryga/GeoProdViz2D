@@ -9,7 +9,10 @@
     /* Vector-specific colors */
     --vector-a-color: hsl(14, 90%, 60%);
     --vector-b-color: hsl(164, 70%, 55%);
-    --vector-sum-color: hsl(220, 85%, 65%);
+    --vector-brot-color: hsl(240, 100%, 50%);
+    --vector-c-color: hsl(67, 100%, 50%);
+    --wedge-a-b-color: hsl(220, 85%, 65%);
+    --dot-a-b-color: hsl(30, 100%, 50%);
 
     /* Dark theme neutral colors (default) */
     --color-text: hsl(210, 20%, 98%);
@@ -411,8 +414,16 @@ a:focus {
     background-color: var(--vector-b-color);
 }
 
-.vector-sum {
-    background-color: var(--vector-sum-color);
+.vector-brot {
+    background-color: var(--vector-brot-color);
+}
+
+.wedge-a-b {
+    background-color: var(--wedge-a-b-color);
+}
+
+.dot-a-b {
+    background-color: var(--dot-a-b-color);
 }
 
 .vector-coords {
@@ -425,18 +436,6 @@ a:focus {
 
 .vector-coords span {
     color: var(--color-text-muted);
-}
-
-.vector-latex {
-    font-size: 1rem;
-    color: var(--color-text);
-    min-height: 2rem;
-    display: flex;
-    align-items: center;
-}
-
-.vector-latex mjx-container {
-    margin: 0 !important;
 }
 
 .vector-fallback {
@@ -467,12 +466,6 @@ a:focus {
     color: var(--color-text);
     font-weight: 300;
     line-height: 1;
-}
-
-.vector-magnitude {
-    font-size: 0.875rem;
-    color: var(--color-text-muted);
-    font-family: var(--font-family-mono);
 }
 
 /* Instructions */

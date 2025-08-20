@@ -65,10 +65,12 @@
                 <canvas id="threejs-canvas"></canvas>
                 <div class="canvas-overlay">
                     <div class="controls">
-                        <button id="reset-btn" class="btn btn-secondary"><i
-                                class="fa-solid fa-rotate-left"></i></button>
-                        <button id="toggle-grid" class="btn btn-secondary"><i
-                                class="fa-solid fa-table-cells-large"></i></button>
+                        <button id="reset-btn" class="btn btn-secondary" title="Reset vectors to default">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                        <button id="toggle-grid" class="btn btn-secondary" title="Toggle grid visibility"></button>
+                            <i class="fa-solid fa-table-cells-large"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -81,10 +83,7 @@
                         <div class="vector-display">
                             <span class="vector-color vector-a"></span>
                             <h3>$\vec{a}=$</h3>
-                            <div class="vector-latex" id="vector-a-display"></div>
-                        </div>
-                        <div class="vector-magnitude">
-                            Magnitude: <span id="vector-a-mag">3.61</span>
+                            <h3 id="vector-a-display">$\begin{pmatrix}2.00 \\ 3.00\end{pmatrix}$</h3>
                         </div>
                     </div>
 
@@ -92,21 +91,29 @@
                         <div class="vector-display">
                             <span class="vector-color vector-b"></span>
                             <h3>$\vec{b}=$</h3>
-                            <div class="vector-latex" id="vector-b-display"></div>
-                        </div>
-                        <div class="vector-magnitude">
-                            Magnitude: <span id="vector-b-mag">2.24</span>
+                            <h3 id="vector-b-display">$\begin{pmatrix}-1.00 \\ 2.00\end{pmatrix}$</h3>
                         </div>
                     </div>
 
                     <div class="vector-info">
                         <div class="vector-display">
-                            <span class="vector-color vector-sum"></span>
-                            <h3>$\vec{a} + \vec{b} =$</h3>
-                            <div class="vector-latex" id="vector-sum-display"></div>
+                            <span class="vector-color vector-brot"></span>
+                            <h3>$\vec{b}_\perp=$</h3>
+                            <h3 id="vector-brot-display">$\begin{pmatrix}-2.00 \\ -1.00\end{pmatrix}$</h3>
                         </div>
-                        <div class="vector-magnitude">
-                            Magnitude: <span id="vector-sum-mag">5.10</span>
+                    </div>
+
+                    <div class="vector-info">
+                        <div class="vector-display">
+                            <span class="vector-color dot-a-b"></span>
+                            <h3 id="dot-a-b-display">$\vec{a}\cdot\vec{b}I = \vec{a}\wedge\vec{b}_\perp = 4.00 I$</h3>
+                        </div>
+                    </div>
+
+                    <div class="vector-info">
+                        <div class="vector-display">
+                            <span class="vector-color wedge-a-b"></span>
+                            <h3 id="wedge-a-b-display">$\vec{a}\wedge\vec{b} = 7.00 I$</h3>
                         </div>
                     </div>
                 </div>
@@ -115,7 +122,6 @@
                     <h3>Instructions</h3>
                     <ul>
                         <li>Drag the endpoints of vectors $\vec{a}$ and $\vec{b}$ to move them</li>
-                        <li>The sum vector ($\vec{a} + \vec{b}$) updates automatically</li>
                         <li>Dashed lines show parallelogram construction</li>
                         <li>Use mouse wheel to zoom in/out</li>
                     </ul>
