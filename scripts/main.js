@@ -91,6 +91,15 @@ class VectorVisualizer {
         this.cameraTarget = new THREE.Vector2(0, 0);
         this.zoom = this.DEFAULT_ZOOM;
 
+        // Visibility state for different elements
+        this.visibility = {
+            a: true,
+            b: true,
+            brot: true,
+            dot: true,
+            wedge: true
+        };
+
         this.init();
     }
 
@@ -173,6 +182,7 @@ class VectorVisualizer {
         this.createGrid();
         this.createAxes();
         this.createVectors();
+        this.updateVisibility();
     }
 
     createGrid() {
@@ -642,6 +652,15 @@ class VectorVisualizer {
         // Control buttons
         document.getElementById('reset-btn').addEventListener('click', this.resetVectors.bind(this));
         document.getElementById('toggle-grid').addEventListener('click', this.toggleGrid.bind(this));
+
+        // Color circle click handlers
+        const colorCircles = document.querySelectorAll('.vector-color[data-vector-type]');
+        colorCircles.forEach(circle => {
+            circle.addEventListener('click', (e) => {
+                const vectorType = e.target.getAttribute('data-vector-type');
+                this.toggleVisibility(vectorType);
+            });
+        });
     }
 
     getMousePosition(event) {
@@ -779,7 +798,25 @@ class VectorVisualizer {
 
         this.updateVector(this.vectorAMesh, this.vectorA);
         this.updateVector(this.vectorBMesh, this.vectorB);
+        this.updateVector(this.vectorBRotMesh, this.vectorB.rotate());
         this.updateVectors();
+
+        // Reset visibility states
+        this.visibility = {
+            a: true,
+            b: true,
+            brot: true,
+            dot: true,
+            wedge: true
+        };
+
+        // Reset color circle appearances
+        const colorCircles = document.querySelectorAll('.vector-color[data-vector-type]');
+        colorCircles.forEach(circle => {
+            circle.classList.remove('hidden');
+        });
+
+        this.updateVisibility();
 
         // Reset camera and zoom
         this.zoom = this.DEFAULT_ZOOM;
@@ -797,6 +834,62 @@ class VectorVisualizer {
 
     toggleGrid() {
         this.gridMesh.visible = !this.gridMesh.visible;
+    }
+
+    toggleVisibility(vectorType) {
+        // Toggle the visibility state
+        this.visibility[vectorType] = !this.visibility[vectorType];
+        
+        // Update the visual elements
+        this.updateVisibility();
+        
+        // Update the UI color circle appearance
+        const colorCircle = document.querySelector(`[data-vector-type="${vectorType}"]`);
+        if (colorCircle) {
+            if (this.visibility[vectorType]) {
+                colorCircle.classList.remove('hidden');
+            } else {
+                colorCircle.classList.add('hidden');
+            }
+        }
+    }
+
+    updateVisibility() {
+        if (this.vectorAMesh) {
+            this.vectorAMesh.visible = this.visibility.a;
+        }
+
+        if (this.vectorBMesh) {
+            this.vectorBMesh.visible = this.visibility.b;
+        }
+
+        if (this.vectorBRotMesh) {
+            this.vectorBRotMesh.visible = this.visibility.brot;
+        }
+
+        if (this.dotMesh) {
+            this.dotMesh.visible = this.visibility.dot;
+        }
+
+        if (this.wedgeMesh) {
+            this.wedgeMesh.visible = this.visibility.wedge;
+        }
+
+        if (this.vectorADashedMeshWedge) {
+            this.vectorADashedMeshWedge.visible = this.visibility.wedge && this.visibility.a;
+        }
+
+        if (this.vectorBDashedMesh) {
+            this.vectorBDashedMesh.visible = this.visibility.wedge && this.visibility.b;
+        }
+
+        if (this.vectorADashedMeshDot) {
+            this.vectorADashedMeshDot.visible = this.visibility.dot && this.visibility.a;
+        }
+
+        if (this.vectorBRotDashedMesh) {
+            this.vectorBRotDashedMesh.visible = this.visibility.dot && this.visibility.brot;
+        }
     }
 
     animate() {
