@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- TODO: Add light mode toggle -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive 2D geometric product visualizer">
+    <meta name="keywords" content="geometric algebra, geometric product">
+    <meta name="author" content="Robin Labryga">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="visualizer">
+    <meta property="og:title" content="GeoProdViz - Geometric Product Visualizer">
+    <meta property="og:description" content="Interactive 2D geometric product visualizer">
+    <!-- <meta property="og:image" content="https://robinlabryga.github.io"> -->
+    <meta property="og:url" content="https://robinlabryga.github.io/GeoProdViz">
+
+    <!-- Twitter -->
+    <meta property="twitter:type" content="visualizer">
+    <meta property="twitter:title" content="GeoProdViz - Geometric Product Visualizer">
+    <meta property="twitter:description" content="Interactive 2D geometric product visualizer">
+    <!-- <meta property="twitter:image" content="https://robinlabryga.github.io"> -->
+    <meta property="twitter:url" content="https://robinlabryga.github.io/GeoProdViz">
+
+    <title>GeoProdViz - Geometric Product Visualizer</title>
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="./styles/main.css" as="style">
+    <link rel="preload" href="./scripts/main.js" as="script">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./styles/main.css">
+
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/5f1a64fc22.js" crossorigin="anonymous"></script>
+
+    <!-- MathJax for LaTeX rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+        </script>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">GeoProdViz</h1>
+            <p class="subtitle">Interactive Geometric Product Visualizer</p>
+        </header>
+
+        <main class="main-content">
+            <div class="canvas-container">
+                <canvas id="threejs-canvas"></canvas>
+                <div class="canvas-overlay">
+                    <div class="controls">
+                        <button id="reset-btn" class="btn btn-secondary"><i
+                                class="fa-solid fa-rotate-left"></i></button>
+                        <button id="toggle-grid" class="btn btn-secondary"><i
+                                class="fa-solid fa-table-cells-large"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="sidebar">
+                <div class="info-panel">
+                    <h2>Vector Information</h2>
+
+                    <div class="vector-info">
+                        <h3>Vector A</h3>
+                        <div class="vector-display">
+                            <span class="vector-color vector-a"></span>
+                            <div class="vector-latex" id="vector-a-display"></div>
+                        </div>
+                        <div class="vector-magnitude">
+                            Magnitude: <span id="vector-a-mag">3.61</span>
+                        </div>
+                    </div>
+
+                    <div class="vector-info">
+                        <h3>Vector B</h3>
+                        <div class="vector-display">
+                            <span class="vector-color vector-b"></span>
+                            <div class="vector-latex" id="vector-b-display"></div>
+                        </div>
+                        <div class="vector-magnitude">
+                            Magnitude: <span id="vector-b-mag">2.24</span>
+                        </div>
+                    </div>
+
+                    <div class="vector-info">
+                        <h3>Sum (A + B)</h3>
+                        <div class="vector-display">
+                            <span class="vector-color vector-sum"></span>
+                            <div class="vector-latex" id="vector-sum-display"></div>
+                        </div>
+                        <div class="vector-magnitude">
+                            Magnitude: <span id="vector-sum-mag">5.10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="instructions">
+                    <h3>Instructions</h3>
+                    <ul>
+                        <li>Drag the endpoints of vectors A and B to move them</li>
+                        <li>The sum vector (A + B) updates automatically</li>
+                        <li>Dashed lines show parallelogram construction</li>
+                        <li>Use mouse wheel to zoom in/out</li>
+                    </ul>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+
+</html>
