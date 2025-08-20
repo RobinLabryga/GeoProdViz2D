@@ -104,6 +104,7 @@ class VectorVisualizer {
         this.vectorBRotDashedMesh = null;
         this.gridMesh = null;
         this.axesMesh = null;
+        this.unitCircleMesh = null;
 
         // Interaction
         this.raycaster = new THREE.Raycaster();
@@ -207,6 +208,7 @@ class VectorVisualizer {
 
     createScene() {
         this.createGrid();
+        this.createUnitCircle();
         this.createAxes();
         this.createVectors();
         this.updateVisibility();
@@ -224,6 +226,15 @@ class VectorVisualizer {
         grid.rotation.x = Math.PI / 2;
         this.gridMesh = grid;
         this.scene.add(grid);
+    }
+
+    createUnitCircle() {
+        const geometry = new THREE.RingGeometry( 0.99, 1.01, 64 ); 
+        const material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
+        this.unitCircleMesh = new THREE.Mesh( geometry, material );
+        this.scene.add( this.unitCircleMesh );
+
+        this.unitCircleMesh.visible = false;
     }
 
     createAxes() {
@@ -692,6 +703,7 @@ class VectorVisualizer {
         // Control buttons
         document.getElementById('reset-btn').addEventListener('click', this.resetVectors.bind(this));
         document.getElementById('toggle-grid').addEventListener('click', this.toggleGrid.bind(this));
+        document.getElementById('toggle-unit-circle').addEventListener('click', this.toggleUnitCircle.bind(this));
 
         // Color circle click handlers
         const colorCircles = document.querySelectorAll('.vector-color[data-vector-type]');
@@ -884,6 +896,10 @@ class VectorVisualizer {
 
     toggleGrid() {
         this.gridMesh.visible = !this.gridMesh.visible;
+    }
+
+    toggleUnitCircle() {
+        this.unitCircleMesh.visible = !this.unitCircleMesh.visible;
     }
 
     toggleVisibility(vectorType) {
