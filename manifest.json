@@ -1,0 +1,26 @@
+{
+    "name": "GeoProdViz2D - Geometric Product Visualizer",
+    "short_name": "GeoProdViz2D",
+    "description": "A web application for visualizing the geometric product in 2D space.",
+    "start_url": "/GeoProdViz2D/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#3B82F6",
+    "orientation": "landscape-primary",
+    "icons": [
+        {
+            "src": "./assets/favicon.png",
+            "sizes": "any",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "education",
+        "science",
+        "math"
+    ],
+    "lang": "en",
+    "dir": "ltr",
+    "author": "Robin Labryga"
+}

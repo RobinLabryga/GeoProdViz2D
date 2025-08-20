@@ -532,6 +532,29 @@ a:focus {
     line-height: 1;
 }
 
+/* ===========================
+   Footer
+   =========================== */
+.site-footer {
+    background: var(--color-background);
+    border-top: 1px solid var(--color-border);
+    padding: var(--space-3xl) 0;
+}
+
+.footer-content {
+    text-align: center;
+}
+
+.footer-text {
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+}
+
+.footer-tech {
+    color: var(--color-text-light);
+    font-size: var(--font-size-sm);
+}
+
 /* Instructions */
 .instructions {
     background: var(--color-surface);
