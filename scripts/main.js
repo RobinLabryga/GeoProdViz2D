@@ -1,5 +1,5 @@
 /**
- * GeoProdViz - Geometric Product Visualizer
+ * GeoProdViz2D - Geometric Product Visualizer
  * Interactive 2D geometric product visualization
  */
 

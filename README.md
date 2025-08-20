@@ -1,6 +1,6 @@
-# GeoProdViz
+# GeoProdViz2D
 
-This repository contains the source code for a website that can be used to visualize the geometric product.
+This repository contains the source code for a website that can be used to visualize the geometric product in 2D space.
 
 ## 📝 License
 
