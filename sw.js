@@ -10,6 +10,9 @@ const urlsToCache = [
   '/styles/main.css',
   '/scripts/main.js',
   '/assets/favicon.png',
+  '/assets/a_b_theta.svg',
+  '/assets/a_b_theta_decomposed.svg',
+  '/assets/a_dot_b.svg',
   '/manifest.json'
 ];
 

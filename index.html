@@ -225,6 +225,119 @@
                 </div>
             </aside>
         </main>
+
+        <!-- Blog Section -->
+        <section class="blog-section">
+            <div class="container">
+                <div class="blog-content">
+                    <!-- Resources Section -->
+                    <article class="blog-article">
+                        <h3>Great Resources</h3>
+                        <p>We will start by highlighting some excellent resources that this project is heavily based on:
+                        </p>
+
+                        <div class="resource-section">
+                            <h4>Blog Series by Jason Merrill:</h4>
+                            <ul class="resource-list">
+                                <li>
+                                    <a href="https://www.shapeoperator.com/2017/02/28/geometry-algebra-intuition/"
+                                        target="_blank" rel="noopener noreferrer">Geometry, Algebra, and Intuition</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.shapeoperator.com/2018/11/19/algebraic-law-of-sines/"
+                                        target="_blank" rel="noopener noreferrer">An algebraic approach to the law of
+                                        sines</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.shapeoperator.com/2019/01/07/relating-dot-wedge/"
+                                        target="_blank" rel="noopener noreferrer">Visualizing geometric product
+                                        relationships in plane geometry</a>
+                                </li>
+                                <li>
+                                    <a href="https://www.shapeoperator.com/2019/02/10/proving-theorems-about-angles-without-angles/"
+                                        target="_blank" rel="noopener noreferrer">Proving theorems about angles without
+                                        angles</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="resource-section">
+                            <h4>Video Series by sudgylacmoe:</h4>
+                            <ul class="resource-list">
+                                <li>
+                                    <a href="https://www.youtube.com/watch?v=2hBWCCAiCzQ&list=PLVuwZXwFua-0Ks3rRS4tIkswgUmDLqqRy"
+                                        target="_blank" rel="noopener noreferrer">From Zero to Geo</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </article>
+
+                    <!-- Notation -->
+                    <article class="blog-article">
+                        <h3>Notation</h3>
+                        <p>
+                            $d$-dimensional column vectors $v \in \mathbb{R}^d$ are denoted using latin letters.
+                        </p>
+                        <p>
+                            While we write $\vec{v}$ for the visualization, we will simply use $v$ here.
+                        </p>
+                        <p>
+                            We access the $i$-th component of vector $v$ as $v_i$.
+                        </p>
+                        <p>
+                            The transpose of a vector $v$ is denoted as $v^\top$.
+                        </p>
+                    </article>
+
+                    <!-- Mathematical Foundations -->
+                    <article class="blog-article">
+                        <h3>The Dot Product</h3>
+                        <p>The dot product of two vectors $a, b \in \mathbb{R}^d$ is defined as:</p>
+                        <div class="math-display">
+                            $$a \cdot b = a^\top b = \sum_{i=1}^{d} a_i b_i$$
+                        </div>
+                        <p>An alternative but equivalent geometric definition is</p>
+                        <div class="math-display">
+                            $$a \cdot b = \|a\| \|b\| \cos(\theta)$$
+                        </div>
+                        <p>where $\theta$ is the angle between the two vectors.</p>
+                        <p>In the diagram below, we can see the vectors $a$ and $b$ along with the angle $\theta$ between them.</p>
+                        <div class="svg-container">
+                            <img src="assets/a_b_theta.svg" alt="Diagram showing two vectors a and b with angle theta between them" class="blog-svg">
+                        </div>
+                        <p>We can decompose vector $b$ into a part that is parallel to $a$ ($b_{\parallel a}$) and a part that is orthogonal to $a$ ($b_{\perp a}$).</p>
+                        <div class="svg-container">
+                            <img src="assets/a_b_theta_decomposed.svg" alt="Diagram showing two vectors a and b with angle theta between them and the decomposition of b into a parallel and orthogonal component with respect to a" class="blog-svg">
+                        </div>
+                        If we rotate vector $b$ by 90 degrees counterclockwise, we get a new vector $b_\perp$. We can use this vector to form a parallelogram with vector $a$.
+                        <div class="svg-container">
+                            <img src="assets/a_dot_b.svg" alt="Diagram showing the parallelogram formed by a and the 90 degree rotated angle b" class="blog-svg">
+                        </div>
+                        <p>We can again decompose $b_\perp$ into a part that is parallel to $a$ ($b_{\perp;\parallel a}$) and a part that is orthogonal to $a$ ($b_{\perp;\perp a}$).</p>
+                        <p>We can see, that the area of the parallelogram is given by $\|b_{\perp;\perp a}\| \cdot \|a\|$</p>
+                        <p>Since we know $\|b\|=\|b_{\perp}\|$, we can use the prior two images to determine all the values.</p>
+                        <div class="math-display">
+                            $$
+                            \begin{alignat*}{4}
+                                \|b_{\perp;\parallel a}\| &= \|b_\perp\| \sin(\theta) &= \|b\| \sin(\theta) &= b_{\perp a} \\
+                                \|b_{\perp;\perp a}\| &= \|b_\perp\| \cos(\theta) &= \|b\| \cos(\theta) &= b_{\parallel a} \\
+                            \end{alignat*}
+                            $$
+                        </div>
+                        <p>We can now use these relationships to find the area of the parallelogram.</p>
+                        <div class="math-display">
+                            $$
+                            \|b_{\perp;\perp a}\| \cdot \|a\| = \|a\| \|b\| \cos(\theta)
+                            $$
+                        </div>
+                        <p>This is just the definition of the dot product.</p>
+                        <p>So we have seen, that the dot product $a \cdot b$ is given by the area of the parallelogram spanned by $a$ and $b_{\perp}$.</p>
+                        <!-- TODO: Example orthogonal 0 -->
+                         <!-- TODO: Example equal square -->
+                    </article>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- Footer -->
@@ -232,7 +345,8 @@
         <div class="container">
             <div class="footer-content">
                 <p class="footer-text" style="text-align: center; margin-bottom: 0.5rem;">
-                    <a href="https://github.com/RobinLabryga/GeoProdViz2D" target="_blank" rel="noopener noreferrer" title="View source code on GitHub">
+                    <a href="https://github.com/RobinLabryga/GeoProdViz2D" target="_blank" rel="noopener noreferrer"
+                        title="View source code on GitHub">
                         <i class="fa-brands fa-github"></i> GitHub
                     </a>
                 </p>

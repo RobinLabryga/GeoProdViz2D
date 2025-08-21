@@ -1,0 +1,27 @@
+<svg width="400" height="300" viewBox="-100 -200 400 300" xmlns="http://www.w3.org/2000/svg">
+    <!-- Vector a (horizontal) -->
+    <line x1="0" y1="0" x2="200" y2="0" stroke="blue" stroke-width="4"/>
+    <polygon points="210,0 190,-6 190,6" fill="blue"/>
+    <text x="150" y="20" font-size="18" fill="blue" font-family="Arial">a</text>
+  
+    <!-- Vector b (angled) -->
+    <line x1="0" y1="0" x2="100" y2="-50" stroke="red" stroke-width="4"/>
+    <polygon points="107,-53.5 89,-50 94,-42" fill="red"/>
+    <text x="50" y="-40" font-size="18" fill="red" font-family="Arial">b</text>
+
+    <!-- Part of b parallel to a -->
+    <line x1="0" y1="0" x2="100" y2="0" stroke="red" stroke-width="2" stroke-dasharray="4"/>
+    <polygon points="107,0 94,-4 94,4" fill="red"/>
+    <text x="50" y="20" font-size="18" fill="red" font-family="Arial">b</text>
+    <text x="60" y="25" font-size="12" fill="red" font-family="Arial">||a</text>
+
+    <!-- Part of b orthogonal to a -->
+    <line x1="100" y1="-50" x2="100" y2="0" stroke="red" stroke-width="2" stroke-dasharray="4"/>
+    <polygon points="100,-56 103,-44 97,-44" fill="red"/>
+    <text x="110" y="-25" font-size="18" fill="red" font-family="Arial">b</text>
+    <text x="120" y="-20" font-size="12" fill="red" font-family="Arial">&#x22A5;a</text>
+    
+    <!-- Angle arc (theta) -->
+    <path d="M 66 -33 A 40 40 0 0 1 74 0" fill="none" stroke="green" stroke-width="3"/>
+    <text x="50" y="-5" font-size="18" fill="green" font-family="Arial">&#x03B8;</text>
+</svg>
