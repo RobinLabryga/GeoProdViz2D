@@ -609,6 +609,12 @@ class VectorVisualizer {
         this.updateWedgeDisplay('wedge-a-b-display', this.vectorA, this.vectorB);
         this.updateDotDisplay('dot-a-b-display', this.vectorA, this.vectorB)
         this.updateVectorDisplay('prod-a-b-c-display', this.vectorA.prod_vector(this.vectorB).prod_vector(this.vectorC).x, this.vectorA.prod_vector(this.vectorB).prod_vector(this.vectorC).y);
+        this.updateProdNormDisplay('prod-a-b-c-norm-display', this.vectorA, this.vectorB, this.vectorC);
+        
+        // Update individual vector norms
+        this.updateVectorNormDisplay('vector-a-norm-display', this.vectorA, 'a');
+        this.updateVectorNormDisplay('vector-b-norm-display', this.vectorB, 'b');
+        this.updateVectorNormDisplay('vector-c-norm-display', this.vectorC, 'c');
     }
 
     updateVectorDisplay(elementId, x, y) {
@@ -687,6 +693,48 @@ class VectorVisualizer {
         }
     }
 
+    updateProdNormDisplay(elementId, vectorA, vectorB, vectorC) {
+        const element = document.getElementById(elementId);
+
+        const norm = norm2(vectorA.prod_vector(vectorB).prod_vector(vectorC));
+        
+        const latex = `\\|\\vec{a}\\vec{b}\\vec{c}\\| = ${norm.toFixed(2)}`;
+
+        // Re-render MathJax if available
+        if (window.MathJax?.typesetPromise) {
+            element.innerHTML = `$${latex}$`;
+            window.MathJax.typesetPromise([element]).catch((err) => {
+                console.warn('MathJax rendering error:', err);
+                // Fallback to simple text display
+                element.innerHTML = `||abc|| = ${norm.toFixed(2)}`;
+            });
+        } else {
+            // Fallback for when MathJax isn't loaded
+            element.innerHTML = `||abc|| = ${norm.toFixed(2)}`;
+        }
+    }
+
+    updateVectorNormDisplay(elementId, vector, vectorName) {
+        const element = document.getElementById(elementId);
+        const norm = norm2(vector);
+        
+        // Update the entire LaTeX expression
+        const latex = `\\|\\vec{${vectorName}}\\| = ${norm.toFixed(2)}`;
+
+        // Re-render MathJax if available
+        if (window.MathJax?.typesetPromise) {
+            element.innerHTML = `$${latex}$`;
+            window.MathJax.typesetPromise([element]).catch((err) => {
+                console.warn('MathJax rendering error:', err);
+                // Fallback to simple text display
+                element.innerHTML = `||${vectorName}|| = ${norm.toFixed(2)}`;
+            });
+        } else {
+            // Fallback for when MathJax isn't loaded
+            element.innerHTML = `||${vectorName}|| = ${norm.toFixed(2)}`;
+        }
+    }
+
     setupEventListeners() {
         // Mouse events
         this.canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
@@ -718,6 +766,12 @@ class VectorVisualizer {
         document.getElementById('normalize-a').addEventListener('click', () => this.normalizeVector('a'));
         document.getElementById('normalize-b').addEventListener('click', () => this.normalizeVector('b'));
         document.getElementById('normalize-c').addEventListener('click', () => this.normalizeVector('c'));
+
+        // Toggle norm button handlers
+        document.getElementById('toggle-norm-prod-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('prod'));
+        document.getElementById('toggle-norm-a-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('a'));
+        document.getElementById('toggle-norm-b-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('b'));
+        document.getElementById('toggle-norm-c-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('c'));
     }
 
     getMousePosition(event) {
@@ -1002,6 +1056,23 @@ class VectorVisualizer {
 
         // Update all related calculations and displays
         this.updateVectors();
+    }
+
+    toggleIndividualNormDisplay(vectorType) {
+        const normDisplay = document.getElementById(`norm-${vectorType}-display`);
+        const toggleBtn = document.getElementById(`toggle-norm-${vectorType}-btn`);
+        const icon = toggleBtn.querySelector('i');
+        
+        // Toggle the collapsed state
+        normDisplay.classList.toggle('collapsed');
+        toggleBtn.classList.toggle('collapsed');
+        
+        // Update the icon
+        if (normDisplay.classList.contains('collapsed')) {
+            icon.className = 'fa-solid fa-chevron-right';
+        } else {
+            icon.className = 'fa-solid fa-chevron-down';
+        }
     }
 
     animate() {
