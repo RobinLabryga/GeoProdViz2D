@@ -75,21 +75,19 @@ class GeometricProduct {
 }
 
 class VectorVisualizerState {
-    constructor() {
-        this.vectorA = new Vector2(2, 1);
-        this.vectorB = new Vector2(-1, 1);
-        this.vectorC = new Vector2(-1, 0);
+    vectorA = new Vector2(2, 1);
+    vectorB = new Vector2(-1, 1);
+    vectorC = new Vector2(-1, 0);
 
-        this.visibility = {
-            a: true,
-            b: true,
-            c: true,
-            brot: true,
-            dot: true,
-            wedge: true,
-            prod: true,
-        };
-    }
+    visibility = {
+        a: true,
+        b: true,
+        c: true,
+        brot: true,
+        dot: true,
+        wedge: true,
+        prod: true,
+    };
 }
 
 class VectorVisualizer {
@@ -141,12 +139,12 @@ class VectorVisualizer {
         this.createScene();
         this.setupEventListeners();
         this.updateVectors();
-        
+
         // Ensure proper sizing after layout is complete
         requestAnimationFrame(() => {
             this.updateCanvasSize();
         });
-        
+
         this.animate();
     }
 
@@ -155,16 +153,16 @@ class VectorVisualizer {
         const cssValue = getComputedStyle(document.documentElement)
             .getPropertyValue(cssVariable)
             .trim();
-        
+
         // Convert CSS color to hex format for Three.js
         // Create a temporary element to get the computed color
         const tempElement = document.createElement('div');
         tempElement.style.color = cssValue;
         document.body.appendChild(tempElement);
-        
+
         const computedColor = getComputedStyle(tempElement).color;
         document.body.removeChild(tempElement);
-        
+
         // Convert rgb(r, g, b) to hex
         const rgbMatch = computedColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
         if (rgbMatch) {
@@ -173,7 +171,7 @@ class VectorVisualizer {
             const b = parseInt(rgbMatch[3]);
             return (r << 16) | (g << 8) | b;
         }
-        
+
         // Fallback to a default color if parsing fails
         return 0xff0000; // Red as fallback
     }
@@ -216,7 +214,7 @@ class VectorVisualizer {
         this.createUnitCircle();
         this.createAxes();
         this.createVectors();
-        this.updateVisibility();
+        this.updateMeshVisibility();
     }
 
     createGrid() {
@@ -234,10 +232,10 @@ class VectorVisualizer {
     }
 
     createUnitCircle() {
-        const geometry = new THREE.RingGeometry( 0.99, 1.01, 64 ); 
-        const material = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } );
-        this.unitCircleMesh = new THREE.Mesh( geometry, material );
-        this.scene.add( this.unitCircleMesh );
+        const geometry = new THREE.RingGeometry(0.99, 1.01, 64);
+        const material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+        this.unitCircleMesh = new THREE.Mesh(geometry, material);
+        this.scene.add(this.unitCircleMesh);
 
         this.unitCircleMesh.visible = false;
     }
@@ -530,30 +528,30 @@ class VectorVisualizer {
         // Update the parallelogram mesh (first child)
         const parallelogram = parallelogramMesh.children[0];
         const positions = parallelogram.geometry.attributes.position.array;
-        
+
         // First triangle: origin, A, Sum
         positions[0] = origin.x; positions[1] = origin.y; positions[2] = origin.z;
         positions[3] = vertexA.x; positions[4] = vertexA.y; positions[5] = vertexA.z;
         positions[6] = vertexSum.x; positions[7] = vertexSum.y; positions[8] = vertexSum.z;
-        
+
         // Second triangle: origin, Sum, B
         positions[9] = origin.x; positions[10] = origin.y; positions[11] = origin.z;
         positions[12] = vertexSum.x; positions[13] = vertexSum.y; positions[14] = vertexSum.z;
         positions[15] = vertexB.x; positions[16] = vertexB.y; positions[17] = vertexB.z;
-        
+
         parallelogram.geometry.attributes.position.needsUpdate = true;
         parallelogram.geometry.computeVertexNormals();
 
         // Update the outline (second child)
         const outline = parallelogramMesh.children[1];
         const outlinePositions = outline.geometry.attributes.position.array;
-        
+
         outlinePositions[0] = origin.x; outlinePositions[1] = origin.y; outlinePositions[2] = origin.z;
         outlinePositions[3] = vertexA.x; outlinePositions[4] = vertexA.y; outlinePositions[5] = vertexA.z;
         outlinePositions[6] = vertexSum.x; outlinePositions[7] = vertexSum.y; outlinePositions[8] = vertexSum.z;
         outlinePositions[9] = vertexB.x; outlinePositions[10] = vertexB.y; outlinePositions[11] = vertexB.z;
         outlinePositions[12] = origin.x; outlinePositions[13] = origin.y; outlinePositions[14] = origin.z;
-        
+
         outline.geometry.attributes.position.needsUpdate = true;
     }
 
@@ -561,11 +559,11 @@ class VectorVisualizer {
         if (this.wedgeMesh) {
             this.updateParallelogram(this.wedgeMesh, this.state.vectorA, this.state.vectorB);
         }
-        
+
         if (this.dotMesh) {
             this.updateParallelogram(this.dotMesh, this.state.vectorA, this.state.vectorB.rotate());
         }
-        
+
         // Update dashed vectors for parallelogram construction
         if (this.vectorADashedMeshWedge && this.vectorBDashedMesh) {
             const vectorSum = this.state.vectorA.add(this.state.vectorB)
@@ -615,7 +613,7 @@ class VectorVisualizer {
         this.updateDotDisplay('dot-a-b-display', this.state.vectorA, this.state.vectorB)
         this.updateVectorDisplay('prod-a-b-c-display', this.state.vectorA.prod_vector(this.state.vectorB).prod_vector(this.state.vectorC).x, this.state.vectorA.prod_vector(this.state.vectorB).prod_vector(this.state.vectorC).y);
         this.updateProdNormDisplay('prod-a-b-c-norm-display', this.state.vectorA, this.state.vectorB, this.state.vectorC);
-        
+
         // Update individual vector norms
         this.updateVectorNormDisplay('vector-a-norm-display', this.state.vectorA, 'a');
         this.updateVectorNormDisplay('vector-b-norm-display', this.state.vectorB, 'b');
@@ -658,7 +656,7 @@ class VectorVisualizer {
         const element = document.getElementById(elementId);
 
         const dot = vectorA.dot(vectorB);
-        
+
         // Update the entire LaTeX expression
         const latex = `\\vec{a}\\cdot\\vec{b}I = \\vec{a}\\wedge\\vec{b}_\\perp = ${dot.toFixed(2)} I`;
 
@@ -680,7 +678,7 @@ class VectorVisualizer {
         const element = document.getElementById(elementId);
 
         const wedge = vectorA.wedge(vectorB);
-        
+
         // Update the entire LaTeX expression
         const latex = `\\vec{a}\\wedge\\vec{b} = ${wedge.toFixed(2)} I`;
 
@@ -702,7 +700,7 @@ class VectorVisualizer {
         const element = document.getElementById(elementId);
 
         const norm = norm2(vectorA.prod_vector(vectorB).prod_vector(vectorC));
-        
+
         const latex = `\\|\\vec{a}\\vec{b}\\vec{c}\\| = ${norm.toFixed(2)}`;
 
         // Re-render MathJax if available
@@ -722,7 +720,7 @@ class VectorVisualizer {
     updateVectorNormDisplay(elementId, vector, vectorName) {
         const element = document.getElementById(elementId);
         const norm = norm2(vector);
-        
+
         // Update the entire LaTeX expression
         const latex = `\\|\\vec{${vectorName}}\\| = ${norm.toFixed(2)}`;
 
@@ -737,6 +735,79 @@ class VectorVisualizer {
         } else {
             // Fallback for when MathJax isn't loaded
             element.innerHTML = `||${vectorName}|| = ${norm.toFixed(2)}`;
+        }
+    }
+
+    updateMeshVisibility() {
+        if (this.vectorAMesh) {
+            this.vectorAMesh.visible = this.state.visibility.a;
+        }
+
+        if (this.vectorBMesh) {
+            this.vectorBMesh.visible = this.state.visibility.b;
+        }
+
+        if (this.vectorCMesh) {
+            this.vectorCMesh.visible = this.state.visibility.c;
+        }
+
+        if (this.vectorBRotMesh) {
+            this.vectorBRotMesh.visible = this.state.visibility.brot;
+        }
+
+        if (this.dotMesh) {
+            this.dotMesh.visible = this.state.visibility.dot;
+        }
+
+        if (this.wedgeMesh) {
+            this.wedgeMesh.visible = this.state.visibility.wedge;
+        }
+
+        if (this.vectorADashedMeshWedge) {
+            this.vectorADashedMeshWedge.visible = this.state.visibility.wedge && this.state.visibility.a;
+        }
+
+        if (this.vectorBDashedMesh) {
+            this.vectorBDashedMesh.visible = this.state.visibility.wedge && this.state.visibility.b;
+        }
+
+        if (this.vectorADashedMeshDot) {
+            this.vectorADashedMeshDot.visible = this.state.visibility.dot && this.state.visibility.a;
+        }
+
+        if (this.vectorBRotDashedMesh) {
+            this.vectorBRotDashedMesh.visible = this.state.visibility.dot && this.state.visibility.brot;
+        }
+
+        if (this.vectorProdMesh) {
+            this.vectorProdMesh.visible = this.state.visibility.prod;
+        }
+    }
+
+    updateCanvasSize() {
+        const container = document.querySelector('.canvas-container');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+        this.renderer.setSize(width, height);
+
+        const aspect = width / height;
+        const frustumSize = 10 / this.zoom;
+
+        this.camera.left = -frustumSize * aspect / 2;
+        this.camera.right = frustumSize * aspect / 2;
+        this.camera.top = frustumSize / 2;
+        this.camera.bottom = -frustumSize / 2;
+        this.camera.aspect = aspect;
+        this.camera.updateProjectionMatrix();
+    }
+
+    updateVisibility(target, vectorType) {
+        // Update the UI color circle appearance
+        if (this.state.visibility[vectorType]) {
+            target.classList.remove('hidden');
+        } else {
+            target.classList.add('hidden');
         }
     }
 
@@ -763,7 +834,7 @@ class VectorVisualizer {
         colorCircles.forEach(circle => {
             circle.addEventListener('click', (e) => {
                 const vectorType = e.target.getAttribute('data-vector-type');
-                this.toggleVisibility(vectorType);
+                this.toggleVisibility(e.target, vectorType);
             });
         });
 
@@ -802,7 +873,7 @@ class VectorVisualizer {
                     break;
                 }
             }
-            
+
             // If no vector was selected, start panning with left mouse
             if (!vectorSelected) {
                 this.canvas.style.cursor = 'grabbing';
@@ -818,15 +889,15 @@ class VectorVisualizer {
             const rect = this.canvas.getBoundingClientRect();
             const mouseX = event.clientX - rect.left;
             const mouseY = event.clientY - rect.top;
-            
+
             // Convert to normalized device coordinates (-1 to 1)
             const ndcX = (mouseX / rect.width) * 2 - 1;
             const ndcY = -(mouseY / rect.height) * 2 + 1;
-            
+
             // Convert to world coordinates using camera frustum
             const frustumSize = 10 / this.zoom;
             const aspect = rect.width / rect.height;
-            
+
             const worldX = (ndcX * frustumSize * aspect / 2) + this.camera.position.x;
             const worldY = (ndcY * frustumSize / 2) + this.camera.position.y;
 
@@ -889,32 +960,12 @@ class VectorVisualizer {
         this.camera.updateProjectionMatrix();
     }
 
-    updateCanvasSize() {
-        const container = document.querySelector('.canvas-container');
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-
-        this.renderer.setSize(width, height);
-
-        const aspect = width / height;
-        const frustumSize = 10 / this.zoom;
-
-        this.camera.left = -frustumSize * aspect / 2;
-        this.camera.right = frustumSize * aspect / 2;
-        this.camera.top = frustumSize / 2;
-        this.camera.bottom = -frustumSize / 2;
-        this.camera.aspect = aspect;
-        this.camera.updateProjectionMatrix();
-    }
-
     onWindowResize() {
         this.updateCanvasSize();
     }
 
-    resetVectors() {
-        this.state.vectorA = new Vector2(2, 1);
-        this.state.vectorB = new Vector2(-1, 1);
-        this.state.vectorC = new Vector2(-1, 0);
+    setState(state) {
+        this.state = state;
 
         this.updateVector(this.vectorAMesh, this.state.vectorA);
         this.updateVector(this.vectorBMesh, this.state.vectorB);
@@ -922,22 +973,18 @@ class VectorVisualizer {
         this.updateVector(this.vectorBRotMesh, this.state.vectorB.rotate());
         this.updateVectors();
 
-        // Reset visibility states
-        this.state.visibility = {
-            a: true,
-            b: true,
-            brot: true,
-            dot: true,
-            wedge: true
-        };
+        this.updateMeshVisibility();
 
         // Reset color circle appearances
         const colorCircles = document.querySelectorAll('.vector-color[data-vector-type]');
         colorCircles.forEach(circle => {
-            circle.classList.remove('hidden');
+            const vectorType = circle.getAttribute('data-vector-type');
+            this.updateVisibility(circle, vectorType);
         });
+    }
 
-        this.updateVisibility();
+    resetVectors() {
+        this.setState(new VectorVisualizerState());
 
         // Reset camera and zoom
         this.zoom = this.DEFAULT_ZOOM;
@@ -961,74 +1008,37 @@ class VectorVisualizer {
         this.unitCircleMesh.visible = !this.unitCircleMesh.visible;
     }
 
-    toggleVisibility(vectorType) {
+    toggleVisibility(target, vectorType) {
         // Toggle the visibility state
         this.state.visibility[vectorType] = !this.state.visibility[vectorType];
-        
+
         // Update the visual elements
-        this.updateVisibility();
-        
-        // Update the UI color circle appearance
-        const colorCircle = document.querySelector(`[data-vector-type="${vectorType}"]`);
-        if (colorCircle) {
-            if (this.state.visibility[vectorType]) {
-                colorCircle.classList.remove('hidden');
-            } else {
-                colorCircle.classList.add('hidden');
-            }
-        }
+        this.updateMeshVisibility();
+
+        this.updateVisibility(target, vectorType);
     }
 
-    updateVisibility() {
-        if (this.vectorAMesh) {
-            this.vectorAMesh.visible = this.state.visibility.a;
-        }
+    toggleIndividualNormDisplay(vectorType) {
+        const normDisplay = document.getElementById(`norm-${vectorType}-display`);
+        const toggleBtn = document.getElementById(`toggle-norm-${vectorType}-btn`);
+        const icon = toggleBtn.querySelector('i');
 
-        if (this.vectorBMesh) {
-            this.vectorBMesh.visible = this.state.visibility.b;
-        }
+        // Toggle the collapsed state
+        normDisplay.classList.toggle('collapsed');
+        toggleBtn.classList.toggle('collapsed');
 
-        if (this.vectorCMesh) {
-            this.vectorCMesh.visible = this.state.visibility.c;
-        }
-
-        if (this.vectorBRotMesh) {
-            this.vectorBRotMesh.visible = this.state.visibility.brot;
-        }
-
-        if (this.dotMesh) {
-            this.dotMesh.visible = this.state.visibility.dot;
-        }
-
-        if (this.wedgeMesh) {
-            this.wedgeMesh.visible = this.state.visibility.wedge;
-        }
-
-        if (this.vectorADashedMeshWedge) {
-            this.vectorADashedMeshWedge.visible = this.state.visibility.wedge && this.state.visibility.a;
-        }
-
-        if (this.vectorBDashedMesh) {
-            this.vectorBDashedMesh.visible = this.state.visibility.wedge && this.state.visibility.b;
-        }
-
-        if (this.vectorADashedMeshDot) {
-            this.vectorADashedMeshDot.visible = this.state.visibility.dot && this.state.visibility.a;
-        }
-
-        if (this.vectorBRotDashedMesh) {
-            this.vectorBRotDashedMesh.visible = this.state.visibility.dot && this.state.visibility.brot;
-        }
-
-        if (this.vectorProdMesh) {
-            this.vectorProdMesh.visible = this.state.visibility.prod;
+        // Update the icon
+        if (normDisplay.classList.contains('collapsed')) {
+            icon.className = 'fa-solid fa-chevron-right';
+        } else {
+            icon.className = 'fa-solid fa-chevron-down';
         }
     }
 
     normalizeVector(vectorType) {
         let vector, mesh, otherMesh;
-        
-        switch(vectorType) {
+
+        switch (vectorType) {
             case 'a':
                 vector = this.state.vectorA.normalize();
                 this.state.vectorA = vector;
@@ -1061,23 +1071,6 @@ class VectorVisualizer {
 
         // Update all related calculations and displays
         this.updateVectors();
-    }
-
-    toggleIndividualNormDisplay(vectorType) {
-        const normDisplay = document.getElementById(`norm-${vectorType}-display`);
-        const toggleBtn = document.getElementById(`toggle-norm-${vectorType}-btn`);
-        const icon = toggleBtn.querySelector('i');
-        
-        // Toggle the collapsed state
-        normDisplay.classList.toggle('collapsed');
-        toggleBtn.classList.toggle('collapsed');
-        
-        // Update the icon
-        if (normDisplay.classList.contains('collapsed')) {
-            icon.className = 'fa-solid fa-chevron-right';
-        } else {
-            icon.className = 'fa-solid fa-chevron-down';
-        }
     }
 
     animate() {
