@@ -74,6 +74,24 @@ class GeometricProduct {
     }
 }
 
+class VectorVisualizerState {
+    constructor() {
+        this.vectorA = new Vector2(2, 1);
+        this.vectorB = new Vector2(-1, 1);
+        this.vectorC = new Vector2(-1, 0);
+
+        this.visibility = {
+            a: true,
+            b: true,
+            c: true,
+            brot: true,
+            dot: true,
+            wedge: true,
+            prod: true,
+        };
+    }
+}
+
 class VectorVisualizer {
     constructor() {
         // Zoom constants
@@ -86,10 +104,8 @@ class VectorVisualizer {
         this.renderer = null;
         this.canvas = null;
 
-        // Vector objects
-        this.vectorA = new Vector2(2, 1);
-        this.vectorB = new Vector2(-1, 1);
-        this.vectorC = new Vector2(-1, 0);
+        // State
+        this.state = new VectorVisualizerState();
 
         // Three.js objects
         this.vectorAMesh = null;
@@ -116,17 +132,6 @@ class VectorVisualizer {
         // Camera controls
         this.cameraTarget = new THREE.Vector2(0, 0);
         this.zoom = this.DEFAULT_ZOOM;
-
-        // Visibility state for different elements
-        this.visibility = {
-            a: true,
-            b: true,
-            c: true,
-            brot: true,
-            dot: true,
-            wedge: true,
-            prod: true,
-        };
 
         this.init();
     }
@@ -276,19 +281,19 @@ class VectorVisualizer {
         const wedgeColor = this.getCSSColor('--wedge-a-b-color');
         const prodColor = this.getCSSColor('--prod-a-b-c-color');
 
-        this.vectorAMesh = this.createVector(this.vectorA, vectorAColor, 'A');
-        this.vectorBMesh = this.createVector(this.vectorB, vectorBColor, 'B');
-        this.vectorCMesh = this.createVector(this.vectorC, vectorCColor, 'C');
-        this.vectorBRotMesh = this.createVector(this.vectorB.rotate(), vectorBRotColor, 'BRot');
-        this.dotMesh = this.createParallelogram(this.vectorA, this.vectorB.rotate(), dotColor);
-        this.wedgeMesh = this.createParallelogram(this.vectorA, this.vectorB, wedgeColor);
-        this.vectorProdMesh = this.createVector(this.vectorA.prod_vector(this.vectorB).prod_vector(this.vectorC), prodColor, 'A\'B\'C\'');
+        this.vectorAMesh = this.createVector(this.state.vectorA, vectorAColor, 'A');
+        this.vectorBMesh = this.createVector(this.state.vectorB, vectorBColor, 'B');
+        this.vectorCMesh = this.createVector(this.state.vectorC, vectorCColor, 'C');
+        this.vectorBRotMesh = this.createVector(this.state.vectorB.rotate(), vectorBRotColor, 'BRot');
+        this.dotMesh = this.createParallelogram(this.state.vectorA, this.state.vectorB.rotate(), dotColor);
+        this.wedgeMesh = this.createParallelogram(this.state.vectorA, this.state.vectorB, wedgeColor);
+        this.vectorProdMesh = this.createVector(this.state.vectorA.prod_vector(this.state.vectorB).prod_vector(this.state.vectorC), prodColor, 'A\'B\'C\'');
 
         // Create dashed helper vectors for parallelogram construction
-        this.vectorADashedMeshWedge = this.createDashedVector(this.vectorA, vectorAColor, 'A\'Wedge');
-        this.vectorADashedMeshDot = this.createDashedVector(this.vectorA, vectorAColor, 'A\'Dot')
-        this.vectorBDashedMesh = this.createDashedVector(this.vectorB, vectorBColor, 'B\'');
-        this.vectorBRotDashedMesh = this.createDashedVector(this.vectorB.rotate(), vectorBRotColor, 'BRot\'')
+        this.vectorADashedMeshWedge = this.createDashedVector(this.state.vectorA, vectorAColor, 'A\'Wedge');
+        this.vectorADashedMeshDot = this.createDashedVector(this.state.vectorA, vectorAColor, 'A\'Dot')
+        this.vectorBDashedMesh = this.createDashedVector(this.state.vectorB, vectorBColor, 'B\'');
+        this.vectorBRotDashedMesh = this.createDashedVector(this.state.vectorB.rotate(), vectorBRotColor, 'BRot\'')
 
         this.scene.add(this.wedgeMesh);
         this.scene.add(this.dotMesh);
@@ -554,67 +559,67 @@ class VectorVisualizer {
 
     updateVectors() {
         if (this.wedgeMesh) {
-            this.updateParallelogram(this.wedgeMesh, this.vectorA, this.vectorB);
+            this.updateParallelogram(this.wedgeMesh, this.state.vectorA, this.state.vectorB);
         }
         
         if (this.dotMesh) {
-            this.updateParallelogram(this.dotMesh, this.vectorA, this.vectorB.rotate());
+            this.updateParallelogram(this.dotMesh, this.state.vectorA, this.state.vectorB.rotate());
         }
         
         // Update dashed vectors for parallelogram construction
         if (this.vectorADashedMeshWedge && this.vectorBDashedMesh) {
-            const vectorSum = this.vectorA.add(this.vectorB)
+            const vectorSum = this.state.vectorA.add(this.state.vectorB)
             // Vector A dashed: from tip of B to tip of Sum
             this.updateDashedVector(
                 this.vectorADashedMeshWedge,
-                { x: this.vectorB.x, y: this.vectorB.y },
+                { x: this.state.vectorB.x, y: this.state.vectorB.y },
                 { x: vectorSum.x, y: vectorSum.y }
             );
 
             // Vector B dashed: from tip of A to tip of Sum
             this.updateDashedVector(
                 this.vectorBDashedMesh,
-                { x: this.vectorA.x, y: this.vectorA.y },
+                { x: this.state.vectorA.x, y: this.state.vectorA.y },
                 { x: vectorSum.x, y: vectorSum.y }
             );
         }
 
         if (this.vectorADashedMeshDot && this.vectorBRotDashedMesh) {
-            const vectorSum = this.vectorA.add(this.vectorB.rotate());
+            const vectorSum = this.state.vectorA.add(this.state.vectorB.rotate());
 
             this.updateDashedVector(
                 this.vectorADashedMeshDot,
-                { x: this.vectorB.rotate().x, y: this.vectorB.rotate().y },
+                { x: this.state.vectorB.rotate().x, y: this.state.vectorB.rotate().y },
                 { x: vectorSum.x, y: vectorSum.y }
             );
 
             this.updateDashedVector(
                 this.vectorBRotDashedMesh,
-                { x: this.vectorA.x, y: this.vectorA.y },
+                { x: this.state.vectorA.x, y: this.state.vectorA.y },
                 { x: vectorSum.x, y: vectorSum.y }
             );
         }
 
-        this.updateVector(this.vectorProdMesh, this.vectorA.prod_vector(this.vectorB).prod_vector(this.vectorC));
+        this.updateVector(this.vectorProdMesh, this.state.vectorA.prod_vector(this.state.vectorB).prod_vector(this.state.vectorC));
 
         this.updateUI();
     }
 
     updateUI() {
         // Update LaTeX vector displays
-        this.updateVectorDisplay('vector-a-display', this.vectorA.x, this.vectorA.y);
-        this.updateVectorDisplay('vector-b-display', this.vectorB.x, this.vectorB.y);
-        this.updateVectorDisplay('vector-c-display', this.vectorC.x, this.vectorC.y);
-        this.updateVectorDisplay('vector-brot-display', this.vectorB.rotate().x, this.vectorB.rotate().y);
-        this.updateWedgeDisplay('wedge-a-b-display', this.vectorA, this.vectorB);
-        this.updateDotDisplay('dot-a-b-display', this.vectorA, this.vectorB)
-        this.updateVectorDisplay('prod-a-b-c-display', this.vectorA.prod_vector(this.vectorB).prod_vector(this.vectorC).x, this.vectorA.prod_vector(this.vectorB).prod_vector(this.vectorC).y);
-        this.updateProdNormDisplay('prod-a-b-c-norm-display', this.vectorA, this.vectorB, this.vectorC);
+        this.updateVectorDisplay('vector-a-display', this.state.vectorA.x, this.state.vectorA.y);
+        this.updateVectorDisplay('vector-b-display', this.state.vectorB.x, this.state.vectorB.y);
+        this.updateVectorDisplay('vector-c-display', this.state.vectorC.x, this.state.vectorC.y);
+        this.updateVectorDisplay('vector-brot-display', this.state.vectorB.rotate().x, this.state.vectorB.rotate().y);
+        this.updateWedgeDisplay('wedge-a-b-display', this.state.vectorA, this.state.vectorB);
+        this.updateDotDisplay('dot-a-b-display', this.state.vectorA, this.state.vectorB)
+        this.updateVectorDisplay('prod-a-b-c-display', this.state.vectorA.prod_vector(this.state.vectorB).prod_vector(this.state.vectorC).x, this.state.vectorA.prod_vector(this.state.vectorB).prod_vector(this.state.vectorC).y);
+        this.updateProdNormDisplay('prod-a-b-c-norm-display', this.state.vectorA, this.state.vectorB, this.state.vectorC);
         
         // Update individual vector norms
-        this.updateVectorNormDisplay('vector-a-norm-display', this.vectorA, 'a');
-        this.updateVectorNormDisplay('vector-b-norm-display', this.vectorB, 'b');
-        this.updateVectorNormDisplay('vector-c-norm-display', this.vectorC, 'c');
+        this.updateVectorNormDisplay('vector-a-norm-display', this.state.vectorA, 'a');
+        this.updateVectorNormDisplay('vector-b-norm-display', this.state.vectorB, 'b');
+        this.updateVectorNormDisplay('vector-c-norm-display', this.state.vectorC, 'c');
     }
 
     updateVectorDisplay(elementId, x, y) {
@@ -827,15 +832,15 @@ class VectorVisualizer {
 
             // Update the appropriate vector
             if (this.dragTarget === 'a') {
-                this.vectorA = new Vector2(worldX, worldY);
-                this.updateVector(this.vectorAMesh, this.vectorA);
+                this.state.vectorA = new Vector2(worldX, worldY);
+                this.updateVector(this.vectorAMesh, this.state.vectorA);
             } else if (this.dragTarget === 'b') {
-                this.vectorB = new Vector2(worldX, worldY);
-                this.updateVector(this.vectorBMesh, this.vectorB);
-                this.updateVector(this.vectorBRotMesh, this.vectorB.rotate());
+                this.state.vectorB = new Vector2(worldX, worldY);
+                this.updateVector(this.vectorBMesh, this.state.vectorB);
+                this.updateVector(this.vectorBRotMesh, this.state.vectorB.rotate());
             } else if (this.dragTarget === 'c') {
-                this.vectorC = new Vector2(worldX, worldY);
-                this.updateVector(this.vectorCMesh, this.vectorC);
+                this.state.vectorC = new Vector2(worldX, worldY);
+                this.updateVector(this.vectorCMesh, this.state.vectorC);
             }
 
             this.updateVectors();
@@ -907,18 +912,18 @@ class VectorVisualizer {
     }
 
     resetVectors() {
-        this.vectorA = new Vector2(2, 1);
-        this.vectorB = new Vector2(-1, 1);
-        this.vectorC = new Vector2(-1, 0);
+        this.state.vectorA = new Vector2(2, 1);
+        this.state.vectorB = new Vector2(-1, 1);
+        this.state.vectorC = new Vector2(-1, 0);
 
-        this.updateVector(this.vectorAMesh, this.vectorA);
-        this.updateVector(this.vectorBMesh, this.vectorB);
-        this.updateVector(this.vectorCMesh, this.vectorC);
-        this.updateVector(this.vectorBRotMesh, this.vectorB.rotate());
+        this.updateVector(this.vectorAMesh, this.state.vectorA);
+        this.updateVector(this.vectorBMesh, this.state.vectorB);
+        this.updateVector(this.vectorCMesh, this.state.vectorC);
+        this.updateVector(this.vectorBRotMesh, this.state.vectorB.rotate());
         this.updateVectors();
 
         // Reset visibility states
-        this.visibility = {
+        this.state.visibility = {
             a: true,
             b: true,
             brot: true,
@@ -958,7 +963,7 @@ class VectorVisualizer {
 
     toggleVisibility(vectorType) {
         // Toggle the visibility state
-        this.visibility[vectorType] = !this.visibility[vectorType];
+        this.state.visibility[vectorType] = !this.state.visibility[vectorType];
         
         // Update the visual elements
         this.updateVisibility();
@@ -966,7 +971,7 @@ class VectorVisualizer {
         // Update the UI color circle appearance
         const colorCircle = document.querySelector(`[data-vector-type="${vectorType}"]`);
         if (colorCircle) {
-            if (this.visibility[vectorType]) {
+            if (this.state.visibility[vectorType]) {
                 colorCircle.classList.remove('hidden');
             } else {
                 colorCircle.classList.add('hidden');
@@ -976,47 +981,47 @@ class VectorVisualizer {
 
     updateVisibility() {
         if (this.vectorAMesh) {
-            this.vectorAMesh.visible = this.visibility.a;
+            this.vectorAMesh.visible = this.state.visibility.a;
         }
 
         if (this.vectorBMesh) {
-            this.vectorBMesh.visible = this.visibility.b;
+            this.vectorBMesh.visible = this.state.visibility.b;
         }
 
         if (this.vectorCMesh) {
-            this.vectorCMesh.visible = this.visibility.c;
+            this.vectorCMesh.visible = this.state.visibility.c;
         }
 
         if (this.vectorBRotMesh) {
-            this.vectorBRotMesh.visible = this.visibility.brot;
+            this.vectorBRotMesh.visible = this.state.visibility.brot;
         }
 
         if (this.dotMesh) {
-            this.dotMesh.visible = this.visibility.dot;
+            this.dotMesh.visible = this.state.visibility.dot;
         }
 
         if (this.wedgeMesh) {
-            this.wedgeMesh.visible = this.visibility.wedge;
+            this.wedgeMesh.visible = this.state.visibility.wedge;
         }
 
         if (this.vectorADashedMeshWedge) {
-            this.vectorADashedMeshWedge.visible = this.visibility.wedge && this.visibility.a;
+            this.vectorADashedMeshWedge.visible = this.state.visibility.wedge && this.state.visibility.a;
         }
 
         if (this.vectorBDashedMesh) {
-            this.vectorBDashedMesh.visible = this.visibility.wedge && this.visibility.b;
+            this.vectorBDashedMesh.visible = this.state.visibility.wedge && this.state.visibility.b;
         }
 
         if (this.vectorADashedMeshDot) {
-            this.vectorADashedMeshDot.visible = this.visibility.dot && this.visibility.a;
+            this.vectorADashedMeshDot.visible = this.state.visibility.dot && this.state.visibility.a;
         }
 
         if (this.vectorBRotDashedMesh) {
-            this.vectorBRotDashedMesh.visible = this.visibility.dot && this.visibility.brot;
+            this.vectorBRotDashedMesh.visible = this.state.visibility.dot && this.state.visibility.brot;
         }
 
         if (this.vectorProdMesh) {
-            this.vectorProdMesh.visible = this.visibility.prod;
+            this.vectorProdMesh.visible = this.state.visibility.prod;
         }
     }
 
@@ -1025,19 +1030,19 @@ class VectorVisualizer {
         
         switch(vectorType) {
             case 'a':
-                vector = this.vectorA.normalize();
-                this.vectorA = vector;
+                vector = this.state.vectorA.normalize();
+                this.state.vectorA = vector;
                 mesh = this.vectorAMesh;
                 break;
             case 'b':
-                vector = this.vectorB.normalize();
-                this.vectorB = vector;
+                vector = this.state.vectorB.normalize();
+                this.state.vectorB = vector;
                 mesh = this.vectorBMesh;
                 otherMesh = this.vectorBRotMesh;
                 break;
             case 'c':
-                vector = this.vectorC.normalize();
-                this.vectorC = vector;
+                vector = this.state.vectorC.normalize();
+                this.state.vectorC = vector;
                 mesh = this.vectorCMesh;
                 break;
             default:
@@ -1051,7 +1056,7 @@ class VectorVisualizer {
 
         // Update rotated vector if it's vector B
         if (vectorType === 'b' && otherMesh) {
-            this.updateVector(otherMesh, this.vectorB.rotate());
+            this.updateVector(otherMesh, this.state.vectorB.rotate());
         }
 
         // Update all related calculations and displays
