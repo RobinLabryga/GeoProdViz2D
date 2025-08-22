@@ -103,7 +103,7 @@ class VectorState {
     // Check if two states are equal
     equals(other) {
         if (!other) return false;
-        
+
         return (
             this.A.equals(other.A) &&
             this.B.equals(other.B) &&
@@ -137,7 +137,7 @@ class VectorVisualizerState {
     // Check if two states are equal
     equals(other) {
         if (!other) return false;
-        
+
         return (
             this.vector.equals(other.vector) &&
             JSON.stringify(this.visibility) === JSON.stringify(other.visibility)
@@ -192,6 +192,11 @@ class VectorVisualizer {
         this.maxHistorySize = 50;
         this.lastSavedState = null;
 
+        // Scroll tracking
+        this.previousScrollPosition = 0;
+        this.isScrollingToCanvas = false;
+        this.returnButton = null;
+
         this.init();
     }
 
@@ -200,6 +205,8 @@ class VectorVisualizer {
         this.createScene();
         this.setupEventListeners();
         this.updateVectors();
+
+        this.returnButton = document.getElementById('return-button');
 
         // Ensure proper sizing after layout is complete
         requestAnimationFrame(() => {
@@ -225,7 +232,8 @@ class VectorVisualizer {
         document.body.removeChild(tempElement);
 
         // Convert rgb(r, g, b) to hex
-        const rgbMatch = computedColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        const rgbRegex = /rgb\((\d+),\s*(\d+),\s*(\d+)\)/;
+        const rgbMatch = rgbRegex.exec(computedColor);
         if (rgbMatch) {
             const r = parseInt(rgbMatch[1]);
             const g = parseInt(rgbMatch[2]);
@@ -920,6 +928,44 @@ class VectorVisualizer {
                 this.redo();
             }
         });
+
+        // Example buttons
+        document.getElementById('example-orthogonal').addEventListener('click', () => {
+            this.loadExample(ORTHOGONAL_EXAMPLE);
+        });
+
+        document.getElementById('example-codirectional').addEventListener('click', () => {
+            this.loadExample((CODIRECTIONAL_EXAMPLE));
+        });
+
+        document.getElementById('example-self').addEventListener('click', () => {
+            this.loadExample(SELF_EXAMPLE);
+        });
+
+        // Return button
+        document.getElementById('return-button').addEventListener('click', () => {
+            this.returnToPreviousPosition();
+        });
+
+        // Scroll tracking to hide return button when user manually scrolls
+        let scrollTimeout;
+        window.addEventListener('scroll', () => {
+            // Don't hide button if we're programmatically scrolling to canvas
+            if (this.isScrollingToCanvas) return;
+
+            // Clear previous timeout
+            clearTimeout(scrollTimeout);
+
+            // Set timeout to hide button after user stops scrolling
+            scrollTimeout = setTimeout(() => {
+                const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+
+                // Hide return button if user has scrolled back close to original position
+                const scrollDifferenceFromOriginal = this.previousScrollPosition - currentScroll;
+                if (scrollDifferenceFromOriginal < 500) 
+                    this.hideReturnButton();
+            }, 100);
+        });
     }
 
     getMousePosition(event) {
@@ -1118,7 +1164,7 @@ class VectorVisualizer {
 
     normalizeVector(vectorType) {
         this.saveState();
-        
+
         let vector, mesh, otherMesh;
 
         switch (vectorType) {
@@ -1157,15 +1203,15 @@ class VectorVisualizer {
     }
 
     saveState() {
-        if (this.lastSavedState?.equals(this.state.vector)) 
+        if (this.lastSavedState?.equals(this.state.vector))
             return;
 
         const currentState = this.state.vector.clone();
-        
+
         this.undoHistory.push(currentState);
         this.redoHistory = [];
         this.lastSavedState = currentState;
-        
+
         if (this.undoHistory.length > this.maxHistorySize) {
             this.undoHistory.shift();
         }
@@ -1176,21 +1222,96 @@ class VectorVisualizer {
             return;
 
         this.redoHistory.push(this.state.vector.clone());
-        
+
         const previousState = this.undoHistory.pop();
         this.setVectorState(previousState);
         this.lastSavedState = this.undoHistory.length > 0 ? this.undoHistory[this.undoHistory.length - 1] : null;
     }
 
     redo() {
-        if (this.redoHistory.length <= 0) 
+        if (this.redoHistory.length <= 0)
             return;
 
         this.lastSavedState = this.state.vector.clone();
         this.undoHistory.push(this.lastSavedState);
-        
+
         const nextState = this.redoHistory.pop();
         this.setVectorState(nextState);
+    }
+
+    loadExample(state) {
+        this.saveState();
+        this.setState(state);
+
+        this.scrollToCanvas();
+    }
+
+    scrollToCanvas() {
+        // Store current scroll position before scrolling
+        this.previousScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+
+        const canvas = document.getElementById('threejs-canvas');
+        if (canvas) {
+            this.isScrollingToCanvas = true;
+            canvas.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Show return button after a delay to allow scroll to complete
+            setTimeout(() => {
+                this.showReturnButton();
+                this.isScrollingToCanvas = false;
+            }, 1000);
+        }
+    }
+
+    showReturnButton() {
+        if (this.returnButton) {
+            this.returnButton.classList.remove('hidden');
+        }
+    }
+
+    hideReturnButton() {
+        if (this.returnButton) {
+            this.returnButton.classList.add('hidden');
+        }
+    }
+
+    returnToPreviousPosition() {
+        if (this.previousScrollPosition !== undefined) {
+            window.scrollTo({
+                top: this.previousScrollPosition,
+                behavior: 'smooth'
+            });
+
+            this.hideReturnButton();
+        }
+    }
+
+    validateStateJSON(json) {
+        try {
+            // Check for required structure
+            if (!json.vector || !json.visibility) return false;
+
+            // Check vector structure
+            const vector = json.vector;
+            if (!vector.A || !vector.B || !vector.C) return false;
+
+            // Check that each vector has x and y coordinates
+            if (typeof vector.A.x !== 'number' || typeof vector.A.y !== 'number') return false;
+            if (typeof vector.B.x !== 'number' || typeof vector.B.y !== 'number') return false;
+            if (typeof vector.C.x !== 'number' || typeof vector.C.y !== 'number') return false;
+
+            // Check visibility structure
+            const visibility = json.visibility;
+            const requiredKeys = ['a', 'b', 'c', 'brot', 'dot', 'wedge', 'prod'];
+            for (const key of requiredKeys) {
+                if (typeof visibility[key] !== 'boolean') return false;
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Error validating JSON:', error);
+            return false;
+        }
     }
 
     animate() {
@@ -1230,3 +1351,45 @@ document.addEventListener('DOMContentLoaded', () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = VectorVisualizer;
 }
+
+const ORTHOGONAL_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(2, 1),
+        new Vector2(-1, 2),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: true,
+    dot: true,
+    wedge: false,
+    prod: false
+});
+
+const CODIRECTIONAL_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(2, 1),
+        new Vector2(-3, -1.5),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: true,
+    dot: true,
+    wedge: false,
+    prod: false
+});
+
+const SELF_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(2, 0),
+        new Vector2(2, 0),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: true,
+    dot: true,
+    wedge: false,
+    prod: false
+});

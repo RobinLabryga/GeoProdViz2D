@@ -302,26 +302,40 @@
                             $$a \cdot b = \|a\| \|b\| \cos(\theta)$$
                         </div>
                         <p>where $\theta$ is the angle between the two vectors.</p>
-                        <p>In the diagram below, we can see the vectors $a$ and $b$ along with the angle $\theta$ between them.</p>
+                        <p>In the diagram below, we can see the vectors $a$ and $b$ along with the angle $\theta$
+                            between them.</p>
                         <div class="svg-container">
-                            <img src="assets/a_b_theta.svg" alt="Diagram showing two vectors a and b with angle theta between them" class="blog-svg">
+                            <img src="assets/a_b_theta.svg"
+                                alt="Diagram showing two vectors a and b with angle theta between them"
+                                class="blog-svg">
                         </div>
-                        <p>We can decompose vector $b$ into a part that is parallel to $a$ ($b_{\parallel a}$) and a part that is orthogonal to $a$ ($b_{\perp a}$).</p>
+                        <p>We can decompose vector $b$ into a part that is parallel to $a$ ($b_{\parallel a}$) and a
+                            part that is orthogonal to $a$ ($b_{\perp a}$).</p>
                         <div class="svg-container">
-                            <img src="assets/a_b_theta_decomposed.svg" alt="Diagram showing two vectors a and b with angle theta between them and the decomposition of b into a parallel and orthogonal component with respect to a" class="blog-svg">
+                            <img src="assets/a_b_theta_decomposed.svg"
+                                alt="Diagram showing two vectors a and b with angle theta between them and the decomposition of b into a parallel and orthogonal component with respect to a"
+                                class="blog-svg">
                         </div>
-                        If we rotate vector $b$ by 90 degrees counterclockwise, we get a new vector $b_\perp$. We can use this vector to form a parallelogram with vector $a$.
+                        If we rotate vector $b$ by 90 degrees counterclockwise, we get a new vector $b_\perp$. We can
+                        use this vector to form a parallelogram with vector $a$.
                         <div class="svg-container">
-                            <img src="assets/a_dot_b.svg" alt="Diagram showing the parallelogram formed by a and the 90 degree rotated angle b" class="blog-svg">
+                            <img src="assets/a_dot_b.svg"
+                                alt="Diagram showing the parallelogram formed by a and the 90 degree rotated angle b"
+                                class="blog-svg">
                         </div>
-                        <p>We can again decompose $b_\perp$ into a part that is parallel to $a$ ($b_{\perp;\parallel a}$) and a part that is orthogonal to $a$ ($b_{\perp;\perp a}$).</p>
-                        <p>We can see, that the area of the parallelogram is given by $\|b_{\perp;\perp a}\| \cdot \|a\|$</p>
-                        <p>Since we know $\|b\|=\|b_{\perp}\|$, we can use the prior two images to determine all the values.</p>
+                        <p>We can again decompose $b_\perp$ into a part that is parallel to $a$ ($b_{\perp;\parallel
+                            a}$) and a part that is orthogonal to $a$ ($b_{\perp;\perp a}$).</p>
+                        <p>We can see, that the area of the parallelogram is given by $\|b_{\perp;\perp a}\| \cdot
+                            \|a\|$</p>
+                        <p>Since we know $\|b\|=\|b_{\perp}\|$, we can use the prior two images to determine all the
+                            values.</p>
                         <div class="math-display">
                             $$
                             \begin{alignat*}{4}
-                                \|b_{\perp;\parallel a}\| &= \|b_\perp\| \sin(\theta) &= \|b\| \sin(\theta) &= b_{\perp a} \\
-                                \|b_{\perp;\perp a}\| &= \|b_\perp\| \cos(\theta) &= \|b\| \cos(\theta) &= b_{\parallel a} \\
+                            \|b_{\perp;\parallel a}\| &= \|b_\perp\| \sin(\theta) &= \|b\| \sin(\theta) &= b_{\perp a}
+                            \\
+                            \|b_{\perp;\perp a}\| &= \|b_\perp\| \cos(\theta) &= \|b\| \cos(\theta) &= b_{\parallel a}
+                            \\
                             \end{alignat*}
                             $$
                         </div>
@@ -332,13 +346,32 @@
                             $$
                         </div>
                         <p>This is just the definition of the dot product.</p>
-                        <p>So we have seen, that the dot product $a \cdot b$ is given by the area of the parallelogram spanned by $a$ and $b_{\perp}$.</p>
-                        <!-- TODO: Example orthogonal 0 -->
-                         <!-- TODO: Example equal square -->
+                        <p>So we have seen, that the dot product $a \cdot b$ is given by the area of the parallelogram
+                            spanned by $a$ and $b_{\perp}$.</p>
+                        <p>This way of thinking of the dot product gives some nice insights</p>
+                        <p>The dot product of two orthogonal vectors is $a \cdot b = \|a\| \|b\| \cos(\frac{\pi}{2}) =
+                            \|a\| \|b\| \cos(-\frac{\pi}{2}) = 0$</p>
+                        <button id="example-orthogonal" class="btn example-btn" title="See example with orthogonal vectors">
+                            <i class="fa-solid fa-play"></i> See example
+                        </button>
+                        <p>The dot product of two codirectional vectors is $a \cdot b = \|a\| \|b\| \cos(0) = \|a\|
+                            \|b\| \cos(\pi) = \|a\| \|b\|$</p>
+                        <button id="example-codirectional" class="btn example-btn" title="See example with codirectional vectors">
+                            <i class="fa-solid fa-play"></i> See example
+                        </button>
+                        <p>The dot product of a vector with itself is $a \cdot a = \|a\| \|a\| \cos(0) = \|a\|^2$</p>
+                        <button id="example-self" class="btn example-btn" title="See example with vector dotted with itself">
+                            <i class="fa-solid fa-play"></i> See example
+                        </button>
                     </article>
                 </div>
             </div>
         </section>
+    </div>
+
+    <!-- Floating return button -->
+    <div id="return-button" class="return-button hidden" title="Return to previous position">
+        <i class="fa-solid fa-arrow-down"></i>
     </div>
 
     <!-- Footer -->
