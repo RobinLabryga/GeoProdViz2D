@@ -139,7 +139,7 @@ class VectorVisualizerState {
         if (!other) return false;
         
         return (
-            this.vectors.equals(other.vectors) &&
+            this.vector.equals(other.vector) &&
             JSON.stringify(this.visibility) === JSON.stringify(other.visibility)
         );
     }
@@ -1161,8 +1161,6 @@ class VectorVisualizer {
             return;
 
         const currentState = this.state.vector.clone();
-
-        console.log(currentState);
         
         this.undoHistory.push(currentState);
         this.redoHistory = [];
@@ -1174,9 +1172,6 @@ class VectorVisualizer {
     }
 
     undo() {
-        console.log("UNDO!")
-        console.log(this.undoHistory)
-        console.log(this.redoHistory)
         if (this.undoHistory.length <= 0)
             return;
 
@@ -1188,9 +1183,6 @@ class VectorVisualizer {
     }
 
     redo() {
-        console.log("REDO!")
-        console.log(this.undoHistory)
-        console.log(this.redoHistory)
         if (this.redoHistory.length <= 0) 
             return;
 
