@@ -93,7 +93,7 @@ class VectorState {
 
     // Create a deep copy of the current state
     clone() {
-        return new VectorVisualizerState(
+        return new VectorState(
             this.A.clone(),
             this.B.clone(),
             this.C.clone()
@@ -185,6 +185,12 @@ class VectorVisualizer {
         // Camera controls
         this.cameraTarget = new THREE.Vector2(0, 0);
         this.zoom = this.DEFAULT_ZOOM;
+
+        // History
+        this.undoHistory = [];
+        this.redoHistory = [];
+        this.maxHistorySize = 50;
+        this.lastSavedState = null;
 
         this.init();
     }
@@ -903,6 +909,17 @@ class VectorVisualizer {
         document.getElementById('toggle-norm-a-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('a'));
         document.getElementById('toggle-norm-b-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('b'));
         document.getElementById('toggle-norm-c-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('c'));
+
+        // Undo/Redo keyboard shortcuts
+        window.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'z') {
+                e.preventDefault();
+                this.undo();
+            } else if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'y') {
+                e.preventDefault();
+                this.redo();
+            }
+        });
     }
 
     getMousePosition(event) {
@@ -923,6 +940,9 @@ class VectorVisualizer {
                 if (intersect.object.userData.draggable) {
                     this.isDragging = true;
                     this.dragTarget = intersect.object.userData.vectorType;
+
+                    this.saveState();
+
                     this.canvas.style.cursor = 'grabbing';
                     vectorSelected = true;
                     break;
@@ -1019,14 +1039,20 @@ class VectorVisualizer {
         this.updateCanvasSize();
     }
 
-    setState(state) {
-        this.state = state;
+    setVectorState(vectorState) {
+        this.state.vector = vectorState;
 
         this.updateVector(this.vectorAMesh, this.state.vector.A);
         this.updateVector(this.vectorBMesh, this.state.vector.B);
         this.updateVector(this.vectorCMesh, this.state.vector.C);
         this.updateVector(this.vectorBRotMesh, this.state.vector.B.rotate());
         this.updateVectors();
+    }
+
+    setState(state) {
+        this.state = state;
+
+        this.setVectorState(this.state.vector);
 
         this.updateMeshVisibility();
 
@@ -1091,6 +1117,8 @@ class VectorVisualizer {
     }
 
     normalizeVector(vectorType) {
+        this.saveState();
+        
         let vector, mesh, otherMesh;
 
         switch (vectorType) {
@@ -1126,6 +1154,51 @@ class VectorVisualizer {
 
         // Update all related calculations and displays
         this.updateVectors();
+    }
+
+    saveState() {
+        if (this.lastSavedState?.equals(this.state.vector)) 
+            return;
+
+        const currentState = this.state.vector.clone();
+
+        console.log(currentState);
+        
+        this.undoHistory.push(currentState);
+        this.redoHistory = [];
+        this.lastSavedState = currentState;
+        
+        if (this.undoHistory.length > this.maxHistorySize) {
+            this.undoHistory.shift();
+        }
+    }
+
+    undo() {
+        console.log("UNDO!")
+        console.log(this.undoHistory)
+        console.log(this.redoHistory)
+        if (this.undoHistory.length <= 0)
+            return;
+
+        this.redoHistory.push(this.state.vector.clone());
+        
+        const previousState = this.undoHistory.pop();
+        this.setVectorState(previousState);
+        this.lastSavedState = this.undoHistory.length > 0 ? this.undoHistory[this.undoHistory.length - 1] : null;
+    }
+
+    redo() {
+        console.log("REDO!")
+        console.log(this.undoHistory)
+        console.log(this.redoHistory)
+        if (this.redoHistory.length <= 0) 
+            return;
+
+        this.lastSavedState = this.state.vector.clone();
+        this.undoHistory.push(this.lastSavedState);
+        
+        const nextState = this.redoHistory.pop();
+        this.setVectorState(nextState);
     }
 
     animate() {
