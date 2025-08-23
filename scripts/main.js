@@ -69,7 +69,7 @@ function norm0(v) {
     return (v.x !== 0 ? 1 : 0) + (v.y !== 0 ? 1 : 0);
 }
 
-function norminf(v) {
+function normInf(v) {
     return Math.max(Math.abs(v.x), Math.abs(v.y));
 }
 
@@ -79,8 +79,13 @@ class GeometricProduct {
         this.wedge = wedge;
     }
 
+    /**
+     * Returns the geometric product (this vector).
+     * @param {Vector2} vector
+     * @returns {Vector2}
+     */
     prod_vector(vector) {
-        return vector.scale(this.dot).add(vector.rotate().scale(this.wedge));
+        return vector.scale(this.dot).sub(vector.rotate().scale(this.wedge));
     }
 }
 
@@ -122,7 +127,8 @@ class VectorVisualizerState {
             brot: true,
             dot: true,
             wedge: true,
-            prod: true,
+            prodABC: true,
+            prodCAB: true
         };
     }
 
@@ -171,6 +177,8 @@ class VectorVisualizer {
         this.vectorADashedMeshDot = null;
         this.vectorBDashedMesh = null; // B vector from tip of A to tip of Sum
         this.vectorBRotDashedMesh = null;
+        this.vectorProdABCMesh = null;
+        this.vectorProdCABMesh = null;
         this.gridMesh = null;
         this.axesMesh = null;
         this.unitCircleMesh = null;
@@ -346,7 +354,8 @@ class VectorVisualizer {
         const vectorBRotColor = this.getCSSColor('--vector-brot-color');
         const dotColor = this.getCSSColor('--dot-a-b-color');
         const wedgeColor = this.getCSSColor('--wedge-a-b-color');
-        const prodColor = this.getCSSColor('--prod-a-b-c-color');
+        const prodABCColor = this.getCSSColor('--prod-a-b-c-color');
+        const prodCABColor = this.getCSSColor('--prod-c-a-b-color');
 
         this.vectorAMesh = this.createVector(this.state.vector.A, vectorAColor, 'A');
         this.vectorBMesh = this.createVector(this.state.vector.B, vectorBColor, 'B');
@@ -354,7 +363,8 @@ class VectorVisualizer {
         this.vectorBRotMesh = this.createVector(this.state.vector.B.rotate(), vectorBRotColor, 'BRot');
         this.dotMesh = this.createParallelogram(this.state.vector.A, this.state.vector.B.rotate(), dotColor);
         this.wedgeMesh = this.createParallelogram(this.state.vector.A, this.state.vector.B, wedgeColor);
-        this.vectorProdMesh = this.createVector(this.state.vector.A.prod_vector(this.state.vector.B).prod_vector(this.state.vector.C), prodColor, 'A\'B\'C\'');
+        this.vectorProdABCMesh = this.createVector(this.state.vector.A.prod_vector(this.state.vector.B).prod_vector(this.state.vector.C), prodABCColor, 'A\'B\'C\'');
+        this.vectorProdCABMesh = this.createVector(this.state.vector.C.prod_vector(this.state.vector.A).prod_vector(this.state.vector.B), prodCABColor, 'C\'A\'B\'');
 
         // Create dashed helper vectors for parallelogram construction
         this.vectorADashedMeshWedge = this.createDashedVector(this.state.vector.A, vectorAColor, 'A\'Wedge');
@@ -372,7 +382,8 @@ class VectorVisualizer {
         this.scene.add(this.vectorAMesh);
         this.scene.add(this.vectorBMesh);
         this.scene.add(this.vectorCMesh);
-        this.scene.add(this.vectorProdMesh);
+        this.scene.add(this.vectorProdABCMesh);
+        this.scene.add(this.vectorProdCABMesh);
     }
 
     createVector(vector, color, label) {
@@ -667,7 +678,8 @@ class VectorVisualizer {
             );
         }
 
-        this.updateVector(this.vectorProdMesh, this.state.vector.A.prod_vector(this.state.vector.B).prod_vector(this.state.vector.C));
+        this.updateVector(this.vectorProdABCMesh, this.state.vector.A.prod_vector(this.state.vector.B).prod_vector(this.state.vector.C));
+        this.updateVector(this.vectorProdCABMesh, this.state.vector.C.prod_vector(this.state.vector.A).prod_vector(this.state.vector.B));
 
         this.updateUI();
     }
@@ -680,8 +692,10 @@ class VectorVisualizer {
         this.updateVectorDisplay('vector-brot-display', this.state.vector.B.rotate().x, this.state.vector.B.rotate().y);
         this.updateWedgeDisplay('wedge-a-b-display', this.state.vector.A, this.state.vector.B);
         this.updateDotDisplay('dot-a-b-display', this.state.vector.A, this.state.vector.B)
-        this.updateVectorDisplay('prod-a-b-c-display', this.state.vector.A.prod_vector(this.state.vector.B).prod_vector(this.state.vector.C).x, this.state.vector.A.prod_vector(this.state.vector.B).prod_vector(this.state.vector.C).y);
-        this.updateProdNormDisplay('prod-a-b-c-norm-display', this.state.vector.A, this.state.vector.B, this.state.vector.C);
+        this.updateVectorDisplay('prodABC-display', this.state.vector.A.prod_vector(this.state.vector.B).prod_vector(this.state.vector.C).x, this.state.vector.A.prod_vector(this.state.vector.B).prod_vector(this.state.vector.C).y);
+        this.updateVectorDisplay('prodCAB-display', this.state.vector.C.prod_vector(this.state.vector.A).prod_vector(this.state.vector.B).x, this.state.vector.C.prod_vector(this.state.vector.A).prod_vector(this.state.vector.B).y);
+        this.updateProdNormDisplay('prodABC-norm-display', this.state.vector.A, this.state.vector.B, this.state.vector.C, '\\vec{a}\\vec{b}\\vec{c}', 'abc');
+        this.updateProdNormDisplay('prodCAB-norm-display', this.state.vector.C, this.state.vector.A, this.state.vector.B, '\\vec{c}\\vec{a}\\vec{b}', 'cab');
 
         // Update individual vector norms
         this.updateVectorNormDisplay('vector-a-norm-display', this.state.vector.A, 'a');
@@ -765,12 +779,12 @@ class VectorVisualizer {
         }
     }
 
-    updateProdNormDisplay(elementId, vectorA, vectorB, vectorC) {
+    updateProdNormDisplay(elementId, vectorA, vectorB, vectorC, latexName, fallbackName) {
         const element = document.getElementById(elementId);
 
         const norm = norm2(vectorA.prod_vector(vectorB).prod_vector(vectorC));
 
-        const latex = `\\|\\vec{a}\\vec{b}\\vec{c}\\| = ${norm.toFixed(2)}`;
+        const latex = `\\|${latexName}\\| = ${norm.toFixed(2)}`;
 
         // Re-render MathJax if available
         if (window.MathJax?.typesetPromise) {
@@ -778,11 +792,11 @@ class VectorVisualizer {
             window.MathJax.typesetPromise([element]).catch((err) => {
                 console.warn('MathJax rendering error:', err);
                 // Fallback to simple text display
-                element.innerHTML = `||abc|| = ${norm.toFixed(2)}`;
+                element.innerHTML = `||${fallbackName}|| = ${norm.toFixed(2)}`;
             });
         } else {
             // Fallback for when MathJax isn't loaded
-            element.innerHTML = `||abc|| = ${norm.toFixed(2)}`;
+            element.innerHTML = `||${fallbackName}|| = ${norm.toFixed(2)}`;
         }
     }
 
@@ -808,49 +822,29 @@ class VectorVisualizer {
     }
 
     updateMeshVisibility() {
-        if (this.vectorAMesh) {
-            this.vectorAMesh.visible = this.state.visibility.a;
-        }
+        this.vectorAMesh.visible = this.state.visibility.a;
 
-        if (this.vectorBMesh) {
-            this.vectorBMesh.visible = this.state.visibility.b;
-        }
+        this.vectorBMesh.visible = this.state.visibility.b;
 
-        if (this.vectorCMesh) {
-            this.vectorCMesh.visible = this.state.visibility.c;
-        }
+        this.vectorCMesh.visible = this.state.visibility.c;
 
-        if (this.vectorBRotMesh) {
-            this.vectorBRotMesh.visible = this.state.visibility.brot;
-        }
+        this.vectorBRotMesh.visible = this.state.visibility.brot;
 
-        if (this.dotMesh) {
-            this.dotMesh.visible = this.state.visibility.dot;
-        }
+        this.dotMesh.visible = this.state.visibility.dot;
 
-        if (this.wedgeMesh) {
-            this.wedgeMesh.visible = this.state.visibility.wedge;
-        }
+        this.wedgeMesh.visible = this.state.visibility.wedge;
 
-        if (this.vectorADashedMeshWedge) {
-            this.vectorADashedMeshWedge.visible = this.state.visibility.wedge && this.state.visibility.a;
-        }
+        this.vectorADashedMeshWedge.visible = this.state.visibility.wedge && this.state.visibility.a;
 
-        if (this.vectorBDashedMesh) {
-            this.vectorBDashedMesh.visible = this.state.visibility.wedge && this.state.visibility.b;
-        }
+        this.vectorBDashedMesh.visible = this.state.visibility.wedge && this.state.visibility.b;
 
-        if (this.vectorADashedMeshDot) {
-            this.vectorADashedMeshDot.visible = this.state.visibility.dot && this.state.visibility.a;
-        }
+        this.vectorADashedMeshDot.visible = this.state.visibility.dot && this.state.visibility.a;
 
-        if (this.vectorBRotDashedMesh) {
-            this.vectorBRotDashedMesh.visible = this.state.visibility.dot && this.state.visibility.brot;
-        }
+        this.vectorBRotDashedMesh.visible = this.state.visibility.dot && this.state.visibility.brot;
 
-        if (this.vectorProdMesh) {
-            this.vectorProdMesh.visible = this.state.visibility.prod;
-        }
+        this.vectorProdABCMesh.visible = this.state.visibility.prodABC;
+
+        this.vectorProdCABMesh.visible = this.state.visibility.prodCAB;
     }
 
     updateCanvasSize() {
@@ -913,7 +907,8 @@ class VectorVisualizer {
         document.getElementById('normalize-c').addEventListener('click', () => this.normalizeVector('c'));
 
         // Toggle norm button handlers
-        document.getElementById('toggle-norm-prod-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('prod'));
+        document.getElementById('toggle-norm-prodABC-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('prodABC'));
+        document.getElementById('toggle-norm-prodCAB-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('prodCAB'));
         document.getElementById('toggle-norm-a-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('a'));
         document.getElementById('toggle-norm-b-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('b'));
         document.getElementById('toggle-norm-c-btn').addEventListener('click', () => this.toggleIndividualNormDisplay('c'));
@@ -962,7 +957,7 @@ class VectorVisualizer {
 
                 // Hide return button if user has scrolled back close to original position
                 const scrollDifferenceFromOriginal = this.previousScrollPosition - currentScroll;
-                if (scrollDifferenceFromOriginal < 500) 
+                if (scrollDifferenceFromOriginal < 500)
                     this.hideReturnButton();
             }, 100);
         });
@@ -1363,7 +1358,8 @@ const ORTHOGONAL_EXAMPLE = new VectorVisualizerState(
     brot: true,
     dot: true,
     wedge: false,
-    prod: false
+    prodABC: false,
+    prodCAB: false
 });
 
 const CODIRECTIONAL_EXAMPLE = new VectorVisualizerState(
@@ -1377,7 +1373,8 @@ const CODIRECTIONAL_EXAMPLE = new VectorVisualizerState(
     brot: true,
     dot: true,
     wedge: false,
-    prod: false
+    prodABC: false,
+    prodCAB: false
 });
 
 const SELF_EXAMPLE = new VectorVisualizerState(
@@ -1391,5 +1388,6 @@ const SELF_EXAMPLE = new VectorVisualizerState(
     brot: true,
     dot: true,
     wedge: false,
-    prod: false
+    prodABC: false,
+    prodCAB: false
 });

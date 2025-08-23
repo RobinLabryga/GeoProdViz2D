@@ -12,6 +12,7 @@
     --vector-brot-color: hsl(323, 88%, 60%);
     --vector-c-color: hsl(143, 88%, 50%);
     --prod-a-b-c-color: hsl(53, 88%, 50%);
+    --prod-c-a-b-color: hsl(26, 88%, 50%);
 
     --wedge-a-b-color: hsl(293, 40%, 50%);
     --dot-a-b-color: hsl(113, 40%, 50%);
@@ -598,6 +599,10 @@ a:focus {
 
 .prod-a-b-c {
     background-color: var(--prod-a-b-c-color);
+}
+
+.prod-c-a-b {
+    background-color: var(--prod-c-a-b-color);
 }
 
 .vector-coords {

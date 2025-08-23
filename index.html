@@ -197,19 +197,39 @@
                     <div class="vector-info">
                         <div class="vector-display">
                             <div class="vector-info-group">
-                                <span class="vector-color prod-a-b-c" data-vector-type="prod"
+                                <span class="vector-color prod-a-b-c" data-vector-type="prodABC"
                                     title="Toggle visibility"></span>
                                 <h3>$\vec{a}\vec{b}\vec{c} =$</h3>
-                                <h3 id="prod-a-b-c-display">$\begin{pmatrix}1.00 \\ -3.00\end{pmatrix}$</h3>
+                                <h3 id="prodABC-display">$\begin{pmatrix}1.00 \\ 3.00\end{pmatrix}$</h3>
                             </div>
-                            <button class="btn btn-toggle-norm" id="toggle-norm-prod-btn" title="Toggle norm display">
+                            <button class="btn btn-toggle-norm" id="toggle-norm-prodABC-btn" title="Toggle norm display">
                                 <i class="fa-solid fa-chevron-down"></i>
                             </button>
                         </div>
-                        <div class="vector-display norm-display" id="norm-prod-display">
+                        <div class="vector-display norm-display" id="norm-prodABC-display">
                             <div class="vector-info-group">
                                 <span class="vector-color-spacer"></span>
-                                <h3 id="prod-a-b-c-norm-display">$\|\vec{a}\vec{b}\vec{c}\| = 3.16$</h3>
+                                <h3 id="prodABC-norm-display">$\|\vec{a}\vec{b}\vec{c}\| = 3.16$</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="vector-info">
+                        <div class="vector-display">
+                            <div class="vector-info-group">
+                                <span class="vector-color prod-c-a-b" data-vector-type="prodCAB"
+                                    title="Toggle visibility"></span>
+                                <h3>$\vec{c}\vec{a}\vec{b} =$</h3>
+                                <h3 id="prodCAB-display">$\begin{pmatrix}1.00 \\ -3.00\end{pmatrix}$</h3>
+                            </div>
+                            <button class="btn btn-toggle-norm" id="toggle-norm-prodCAB-btn" title="Toggle norm display">
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="vector-display norm-display" id="norm-prodCAB-display">
+                            <div class="vector-info-group">
+                                <span class="vector-color-spacer"></span>
+                                <h3 id="prodCAB-norm-display">$\|\vec{c}\vec{a}\vec{b}\| = 3.16$</h3>
                             </div>
                         </div>
                     </div>
@@ -348,21 +368,31 @@
                         <p>This is just the definition of the dot product.</p>
                         <p>So we have seen, that the dot product $a \cdot b$ is given by the area of the parallelogram
                             spanned by $a$ and $b_{\perp}$.</p>
-                        <p>This way of thinking of the dot product gives some nice insights</p>
-                        <p>The dot product of two orthogonal vectors is $a \cdot b = \|a\| \|b\| \cos(\frac{\pi}{2}) =
-                            \|a\| \|b\| \cos(-\frac{\pi}{2}) = 0$</p>
-                        <button id="example-orthogonal" class="btn example-btn" title="See example with orthogonal vectors">
-                            <i class="fa-solid fa-play"></i> See example
-                        </button>
-                        <p>The dot product of two codirectional vectors is $a \cdot b = \|a\| \|b\| \cos(0) = \|a\|
-                            \|b\| \cos(\pi) = \|a\| \|b\|$</p>
-                        <button id="example-codirectional" class="btn example-btn" title="See example with codirectional vectors">
-                            <i class="fa-solid fa-play"></i> See example
-                        </button>
-                        <p>The dot product of a vector with itself is $a \cdot a = \|a\| \|a\| \cos(0) = \|a\|^2$</p>
-                        <button id="example-self" class="btn example-btn" title="See example with vector dotted with itself">
-                            <i class="fa-solid fa-play"></i> See example
-                        </button>
+                        <p>This way of thinking of the dot product gives some nice insights:</p>
+                        <ul>
+                            <li>
+                                <p>The dot product of two orthogonal vectors is $a \cdot b = \|a\| \|b\| \cos(\frac{\pi}{2}) =
+                                    \|a\| \|b\| \cos(-\frac{\pi}{2}) = 0$</p>
+                                <button id="example-orthogonal" class="btn example-btn" title="See example with orthogonal vectors">
+                                    <i class="fa-solid fa-play"></i> See example
+                                </button>
+                            </li>
+                            <li>
+                                <p>The dot product of two codirectional vectors is $a \cdot b = \|a\| \|b\| \cos(0) = \|a\|
+                                    \|b\| \cos(\pi) = \|a\| \|b\|$</p>
+                                <button id="example-codirectional" class="btn example-btn" title="See example with codirectional vectors">
+                                    <i class="fa-solid fa-play"></i> See example
+                                </button>
+                            </li>
+                            <li>
+                                <p>The dot product of a vector with itself is $a \cdot a = \|a\| \|a\| \cos(0) = \|a\|^2$</p>
+                                <button id="example-self" class="btn example-btn" title="See example with vector dotted with itself">
+                                    <i class="fa-solid fa-play"></i> See example
+                                </button>
+                            </li>
+                            <!-- TODO: Example sign switch is direction switch -->
+                        </ul>
+                    </article>
                     </article>
                 </div>
             </div>
