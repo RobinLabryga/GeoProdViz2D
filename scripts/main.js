@@ -162,6 +162,7 @@ class VectorVisualizer {
         this.camera = null;
         this.renderer = null;
         this.canvas = null;
+        this.needsRender = true;
 
         // State
         this.state = new VectorVisualizerState();
@@ -284,6 +285,8 @@ class VectorVisualizer {
         // Set initial size
         this.updateCanvasSize();
         this.renderer.setPixelRatio(window.devicePixelRatio);
+
+        this.needsRender = true;
     }
 
     createScene() {
@@ -576,6 +579,8 @@ class VectorVisualizer {
         if (vectorMesh.children[2]) {
             vectorMesh.children[2].position.set(vector.x, vector.y, 0.01);
         }
+
+        this.needsRender = true;
     }
 
     updateDashedVector(vectorMesh, startPoint, endPoint) {
@@ -596,6 +601,8 @@ class VectorVisualizer {
         const angle = Math.atan2(vectorY, vectorX);
         head.position.set(endPoint.x, endPoint.y, 0);
         head.rotation.z = angle - Math.PI / 2;
+
+        this.needsRender = true;
     }
 
     updateParallelogram(parallelogramMesh, vectorA, vectorB) {
@@ -633,6 +640,8 @@ class VectorVisualizer {
         outlinePositions[12] = origin.x; outlinePositions[13] = origin.y; outlinePositions[14] = origin.z;
 
         outline.geometry.attributes.position.needsUpdate = true;
+
+        this.needsRender = true;
     }
 
     updateVectors() {
@@ -845,6 +854,8 @@ class VectorVisualizer {
         this.vectorProdABCMesh.visible = this.state.visibility.prodABC;
 
         this.vectorProdCABMesh.visible = this.state.visibility.prodCAB;
+
+        this.needsRender = true;
     }
 
     updateCanvasSize() {
@@ -863,6 +874,8 @@ class VectorVisualizer {
         this.camera.bottom = -frustumSize / 2;
         this.camera.aspect = aspect;
         this.camera.updateProjectionMatrix();
+
+        this.needsRender = true;
     }
 
     updateVisibility(target, vectorType) {
@@ -1074,6 +1087,8 @@ class VectorVisualizer {
         this.camera.top = frustumSize / 2;
         this.camera.bottom = -frustumSize / 2;
         this.camera.updateProjectionMatrix();
+
+        this.needsRender = true;
     }
 
     onWindowResize() {
@@ -1120,14 +1135,18 @@ class VectorVisualizer {
         this.camera.top = frustumSize / 2;
         this.camera.bottom = -frustumSize / 2;
         this.camera.updateProjectionMatrix();
+
+        this.needsRender = true;
     }
 
     toggleGrid() {
         this.gridMesh.visible = !this.gridMesh.visible;
+        this.needsRender = true;
     }
 
     toggleUnitCircle() {
         this.unitCircleMesh.visible = !this.unitCircleMesh.visible;
+        this.needsRender = true;
     }
 
     toggleVisibility(target, vectorType) {
@@ -1311,7 +1330,11 @@ class VectorVisualizer {
 
     animate() {
         requestAnimationFrame(this.animate.bind(this));
-        this.renderer.render(this.scene, this.camera);
+
+        if (this.needsRender || this.isDragging) {
+            this.renderer.render(this.scene, this.camera);
+            this.needsRender = false;
+        }
     }
 }
 
