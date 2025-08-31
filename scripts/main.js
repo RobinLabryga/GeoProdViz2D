@@ -937,19 +937,6 @@ class VectorVisualizer {
             }
         });
 
-        // Example buttons
-        document.getElementById('example-orthogonal').addEventListener('click', () => {
-            this.loadExample(ORTHOGONAL_EXAMPLE);
-        });
-
-        document.getElementById('example-codirectional').addEventListener('click', () => {
-            this.loadExample((CODIRECTIONAL_EXAMPLE));
-        });
-
-        document.getElementById('example-self').addEventListener('click', () => {
-            this.loadExample(SELF_EXAMPLE);
-        });
-
         // Return button
         document.getElementById('return-button').addEventListener('click', () => {
             this.returnToPreviousPosition();
