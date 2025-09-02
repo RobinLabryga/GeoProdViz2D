@@ -279,10 +279,295 @@
                         </div>
                     </article>
 
-                    <!-- Plans -->
                     <article class="blog-article">
-                        <h3>The Geometric Product</h3>
-                        <p>Under Construction...</p>
+                        <p>This is still a work in progress. More changes will be made soon.</p>
+                    </article>
+
+                    <!-- Notation -->
+                    <article class="blog-article">
+                        <h3>Notation</h3>
+                        <p>
+                            $d$-dimensional column vectors $v \in \mathbb{R}^d$ are denoted using latin letters.
+                        </p>
+                        <p>
+                            While we write $\vec{v}$ for the visualization, we will simply use $v$ here.
+                        </p>
+                        <p>
+                            We access the $i$-th component of vector $v$ as $v_i$.
+                        </p>
+                        <p>
+                            The transpose of a vector $v$ is denoted as $v^\top$.
+                        </p>
+                        <p>
+                            The $i$-th basis vector is denoted as $e_i$ and is the vector with all zeros except for a 1 in the $i$-th position.
+                        </p>
+                    </article>
+
+                    <!-- Mathematical Foundations -->
+                    <article class="blog-article">
+                        <h3>The Dot Product</h3>
+                        <p>We begin by looking at the dot product of two basis vectors.</p>
+                        <p>The dot product of two basis vectors is:</p>
+                        <div class="math-display">
+                            $$
+                            e_i\cdot e_j = \begin{cases}
+                            1 & , i = j \\
+                            0 & , i \neq j
+                            \end{cases}
+                            $$
+                        </div>
+                        <p>In 2D, the only two basis vectors are $e_1$ and $e_2$.</p>
+                        <button id="example-dot-basis-parallel" class="btn example-btn" title="See example of two parallel basis vectors in 2D">
+                            <i class="fa-solid fa-play"></i> See example $e_1 \cdot e_1$
+                        </button>
+                        <button id="example-dot-basis-orthogonal" class="btn example-btn" title="See example of two orthogonal basis vectors in 2D">
+                            <i class="fa-solid fa-play"></i> See example $e_1 \cdot e_2$
+                        </button>
+                        <p>The dot product has some basic properties:</p>
+                        <ul>
+                            <li>Commutativity: $a \cdot b = b \cdot a$</li>
+                            <li>Distributivity: $a \cdot (b + c) = a \cdot b + a \cdot c$</li>
+                            <li>Linearity: $\alpha(a \cdot b) = (\alpha a) \cdot b = a \cdot (\alpha b)$ for any scalar $\alpha\in\mathbb{R}$</li>
+                        </ul>
+                        Using these properties, we can compute the dot product of any two vectors $a,b\in\mathbb{R}^d$.
+                        <div class="math-display">
+                            $$
+                            \begin{align*}
+                            a \cdot b &\overset{(\text{i})}{=} \sum_{i\in[1..d]} a_ie_i \cdot \sum_{j\in[1..d]} b_je_j \\
+                            &\overset{(\text{ii})}{=} \sum_{i,j\in[1..d]} a_ie_i \cdot b_je_j \\
+                            &\overset{(\text{iii})}{=} \sum_{i,j\in[1..d]} a_i b_j (e_i \cdot e_j) \\
+                            &\overset{(\text{iv})}{=} \sum_{i,j\in[1..d] | i = j} a_i b_i (\underbrace{e_i \cdot e_i}_1) + \sum_{i,j\in[1..d] | i \neq j} a_i b_j (\underbrace{e_i \cdot e_j}_0) \\
+                            &= \sum_{i\in[1..d]} a_i b_i = a^\top b
+                            \end{align*}
+                            $$
+                        </div>
+                        <p>where we used the definition of vectors in terms of the basis vectors (i), distributivity (ii), linearity (iii), and sorted a sum into two sums (iv).</p>
+                        <p>An alternative but equivalent geometric definition of the dot product is:</p>
+                        <div class="math-display">
+                            $$
+                            a \cdot b = \|a\| \|b\| \cos\theta
+                            $$
+                        </div>
+                        <p>where $\theta$ is the angle between the two vectors.</p>
+                        <p>In the diagram below, we can see vectors $a$ and $b$ along with the angle $\theta$
+                            between them.</p>
+                        <div class="svg-container">
+                            <img src="assets/a_b_theta.svg" alt="Diagram showing two vectors a and b with angle theta between them" class="blog-svg">
+                        </div>
+                        <p>We can decompose vector $b$ into a part that is parallel to $a$ ($b_{\parallel a}$) and a
+                            part that is orthogonal to $a$ ($b_{\perp a}$).</p>
+                        <div class="svg-container">
+                            <img src="assets/a_b_theta_decomposed.svg" alt="Diagram showing two vectors a and b with angle theta between them and the decomposition of b into a parallel and orthogonal component with respect to a" class="blog-svg">
+                        </div>
+                        If we rotate vector $b$ by $90^\circ = \frac{\pi}{2}$ counterclockwise, we get a new vector $b_\perp$. We can
+                        use this vector to form a parallelogram with vector $a$.
+                        <div class="svg-container">
+                            <img src="assets/a_dot_b.svg" alt="Diagram showing the parallelogram formed by a and the 90 degree rotated angle b" class="blog-svg">
+                        </div>
+                        <p>We can again decompose $b_\perp$ into a part that is parallel to $a$ ($b_{\perp;\parallel
+                            a}$) and a part that is orthogonal to $a$ ($b_{\perp;\perp a}$).</p>
+                        <p>We can see, that the area of the parallelogram is given by $\|b_{\perp;\perp a}\| \cdot
+                            \|a\|$</p>
+                        <p>Since we know $\|b\|=\|b_{\perp}\|$, we can use the prior two images to determine all the
+                            magnitudes.</p>
+                        <div class="math-display">
+                            $$
+                            \begin{alignat*}{4}
+                            \|b_{\perp;\parallel a}\| &= \|b_\perp\| \sin(\theta) &= \|b\| \sin(\theta) &= \|b_{\perp a}\|
+                            \\
+                            \|b_{\perp;\perp a}\| &= \|b_\perp\| \cos(\theta) &= \|b\| \cos(\theta) &= \|b_{\parallel a}\|
+                            \\
+                            \end{alignat*}
+                            $$
+                        </div>
+                        <p>We can now use these relationships to find the area of the parallelogram.</p>
+                        <div class="math-display">
+                            $$
+                            \|b_{\perp;\perp a}\| \cdot \|a\| = \|a\| \|b\| \cos(\theta)
+                            $$
+                        </div>
+                        <p>This is just the definition of the dot product.</p>
+                        <p>So we have seen, that the dot product $a \cdot b$ is given by the area of the parallelogram spanned by $a$ and $b_{\perp}$.</p>
+                        <p>This way of thinking of the dot product enables some nice visual interpretations of the properties of the dot product:</p>
+                        <ul>
+                            <li>
+                                <p>The dot product of two orthogonal vectors is $a \cdot b = \|a\| \|b\| \cos(\frac{\pi}{2}) = \|a\| \|b\| \cos(-\frac{\pi}{2}) = 0$, since the area is a line.</p>
+                                <button id="example-orthogonal" class="btn example-btn" title="See example with orthogonal vectors">
+                                    <i class="fa-solid fa-play"></i> See example
+                                </button>
+                            </li>
+                            <li>
+                                <p>The dot product of two codirectional vectors is $a \cdot b = \|a\| \|b\| \cos(0) = \|a\| \|b\|$ or $a \cdot b = \|a\| \|b\| \cos(\pi) = -\|a\| \|b\|$, since the area is a rectangle.</p>
+                                <button id="example-codirectional" class="btn example-btn" title="See example with codirectional vectors">
+                                    <i class="fa-solid fa-play"></i> See example
+                                </button>
+                            </li>
+                            <li>
+                                <p>The dot product of a vector with itself is $a \cdot a = \|a\| \|a\| \cos(0) = \|a\|^2$</p>
+                                <button id="example-self" class="btn example-btn" title="See example with vector dotted with itself">
+                                    <i class="fa-solid fa-play"></i> See example
+                                </button>
+                            </li>
+                            <li>
+                                <p>If we negate the direction of one of the vectors, the sign of the dot product changes.</p>
+                                <p>You can see this by scaling one of the vectors through the origin and observing that the direction that one would go around the circumference of the parallelogram starting from $a$ reverses from counterclockwise to clockwise and vice versa.</p>
+                                <button id="example-sign-switch" class="btn example-btn" title="See example of dot product are being mirrored by mirroring one of the vectors">
+                                    <i class="fa-solid fa-play"></i> See example
+                                </button>
+                            </li>
+                        </ul>
+                    </article>
+
+                    <article class="blog-article">
+                        <h3>The Wedge Product of Vectors</h3>
+
+                        <p>For two basis vectors $e_i$ and $e_j$, we define the wedge product $e_i \wedge e_j=\begin{cases}e_i\wedge e_j & , i \lt j\\ -e_i\wedge e_j & , i> j\\ 0 & , i=j\end{cases}$.
+                        </p>
+                        <p>A canonical pair of non-equal basis vectors forms a basis bivector. A $d$-dimensional space
+                            has $\binom{d}{2}$ basis bivectors. The magnitude of a basis bivector is $1$.</p>
+                        <p>We use the canonical definition of the wedge product. Other conventions only differ in sign.
+                            For $\mathbb{R}^3$, this canonical definition defines the basis $\{e_1 \wedge e_2, e_1
+                            \wedge e_3, e_2 \wedge e_3\}$. A common alternative choice of basis is $\{e_1 \wedge e_2,
+                            e_2 \wedge e_3, e_3 \wedge e_1\}$, which mimics the cyclic structure of the cross product
+                            $e_1 \times e_2 = e_3, e_2 \times e_3 = e_1, e_3 \times e_1 = e_2$.</p>
+
+                         <p>In 2D, the only two basis vectors are $e_1$ and $e_2$.</p>
+                        <button id="example-wedge-basis-parallel" class="btn example-btn" title="See example of two parallel basis vectors in 2D">
+                            <i class="fa-solid fa-play"></i> See example $e_1 \wedge e_1$
+                        </button>
+                        <button id="example-wedge-basis-orthogonal" class="btn example-btn" title="See example of two orthogonal basis vectors in 2D">
+                            <i class="fa-solid fa-play"></i> See example $e_1 \wedge e_2$
+                        </button>
+                        <button id="example-wedge-negative-basis-orthogonal" class="btn example-btn" title="See example of two orthogonal non-canonical basis vectors in 2D">
+                            <i class="fa-solid fa-play"></i> See example $e_2 \wedge e_1$
+                        </button>
+
+                        <p>The wedge product has some basic properties:</p>
+                        <ul>
+                            <li>Antisymmetry: $a \wedge b = - b \wedge a$</li>
+                            <li>Linearity: $\alpha(a \wedge b) = (\alpha a) \wedge b = a \wedge (\alpha b)$ for any scalar
+                                $\alpha$</li>
+                            <li>Associativity: $a \wedge (b \wedge c) = (a \wedge b) \wedge c$</li>
+                            <li>Distributivity: $a \wedge (b + c) = a \wedge b + a \wedge c$</li>
+                        </ul>
+
+                        <p>We can use these properties to find the wedge product of any two vectors.</p>
+                        <div class="math-display">
+                            $$
+                            \begin{align*}
+                            a \wedge b &= \sum_{i\in[1..d]} a_ie_i \wedge \sum_{j\in[1..d]} b_je_j \\
+                            &= \sum_{i,j\in[1..d]} a_ie_i \wedge b_je_j \\
+                            &= \sum_{i,j\in[1..d]} a_ib_j (e_i \wedge e_j) \\
+                            &= \left(\sum_{i,j\in[1..d] | i=j} a_ib_j (e_i \wedge e_j)\right) + \left(\sum_{i,j\in[1..d] | i\neq j} a_ib_j (e_i \wedge e_j)\right) \\
+                            &= \underbrace{\left(\sum_{i\in[1..d]} a_ib_i \underbrace{e_i \wedge e_i}_0\right)}_0 + \left(\sum_{i,j\in[1..d] | i\neq j} a_ib_j (e_i \wedge e_j)\right) \\
+                            &= \left(\sum_{i,j\in[1..d] | i \lt j} a_ib_j (e_i \wedge e_j)\right) + \left(\sum_{i,j\in[1..d] | i> j} a_ib_j (e_i \wedge e_j)\right) \\
+                            &= \left(\sum_{i,j\in[1..d] | i \lt j} a_ib_j (e_i \wedge e_j)\right) + \left(\sum_{i,j\in[1..d] | i \lt j} a_jb_i (e_j \wedge e_i)\right) \\
+                            &=\left(\sum_{i,j\in[1..d] | i \lt j} a_ib_j (e_i \wedge e_j)\right) + \left(\sum_{i,j\in[1..d] | i \lt j} -a_jb_i (e_i \wedge e_j)\right) \\
+                            &=\sum_{i,j\in[1..d] | i \lt j} (a_ib_j - a_jb_i) (e_i \wedge e_j)
+                            \end{align*} $$ </div>
+                        <p>We can see, that we can express any bivector as a linear combination of the basis bivectors.</p>
+                        <p>Each scalar $a_ib_j - a_jb_i$ is equivalent to the determinant of the linear transformation defined by the 2D components within the $ij$-plane. Since the determinant describes the signed area of the parallelogram spanned by these vectors, we can interpret a bivector as a collection of parallelograms spanned by the projections of $a$ and $b$ onto each basis plane. The sign of the scalar determines the orientation of the corresponding parallelogram. It is positive, if the path along the circumference of the parallelogram walking into the direction of $a$ first, is counterclockwise.</p>
+                        <p>We denote the scalar associated with the basis bivector $e_i \wedge e_j$ as $\langle a \wedge b\rangle_{ij}$. </p>
+
+                        <!-- TODO: Example only area and sign matters otherwise they are the same -->
+                        <!-- TODO: Example antisymmetry: Swapping vectors only changes sign -->
+                        <!-- TODO: Example scaling scales are the same -->
+
+                        <p>In $\mathbb{R}^2$, we only have one basis plane/bivector $e_1 \wedge e_2$. So the wedge product of two vectors $a, b \in \mathbb{R}^2$ is given by $a \wedge b = (a_1 b_2 - a_2 b_1)(e_1 \wedge e_2)$. This can geometrically be interpreted as the parallelogram spanned by the two vectors, where a counterclockwise orientation (going along $a$ first) corresponds to a positive sign.</p>
+                    </article>
+
+                    <article class="blog-article">
+                        <h3>The Geometric Product of Vectors</h3>
+                        <p>The geometric product of two vectors is defined as:</p>
+                        <div class="math-display">
+                            $$
+                            ab = a \cdot b + a \wedge b
+                            $$
+                        </div>
+
+                        <p>For the geometric product of two basis vectors we get:</p>
+                        <div class="math-display">
+                            $$
+                            e_ie_j = e_i \cdot e_j + e_i \wedge e_j = \begin{cases}
+                            1 + 0(e_i \wedge e_j) = 1 & , i=j \\
+                            0 + 1(e_i \wedge e_j) & , i \lt j \\ 0 - 1(e_j \wedge e_i) & , i> j
+                            \end{cases}
+                            $$
+                        </div>
+                        <p>We can see that a basis wedge product $e_i \wedge e_j$ is equal to a basis geometric product $e_ie_j$ and that the geometric product of a basis vector with itself is $1$. This means that when we have a geometric product of more than two basis vectors, we can rearrange the order of different basis vectors by adding a negative sign exactly like we would for the wedge product, and we can replace the geometric product of a basis vector with itself by a scalar $1$.</p>
+
+                        <p>For the geometric product between a vector $c$ and a geometric product $ab$ applied to the left, we get:</p>
+                        <div class="math-display">
+                            $$
+                            \begin{align*}
+                            abc &= (ab)c = (a \cdot b + a \wedge b)c \\
+                            &= (a \cdot b)c + (a \wedge b)c \\
+                            &= (a \cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} (e_i \wedge e_j)c \\
+                            &= (a \cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} e_ie_jc \\
+                            &= (a \cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} e_ie_j\left(\sum_{k\in[1..d]} c_k e_k \right) \\
+                            &= (a \cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left(\sum_{k\in[1..d]} c_ke_ie_je_k \right) \\
+                            &= (a \cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( \sum_{k\in[1..d] | k = i} c_ie_ie_je_i + \sum_{k\in[1..d] | k = j} c_je_ie_je_j + \sum_{k\in[1..d] | k \neq i,j} c_ke_ie_je_k \right) \\
+                            &= (a \cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( c_ie_ie_je_i + c_je_ie_je_j + \sum_{k\in[1..d] | k \lt i \lt j} c_ke_ie_je_k + \sum_{i\lt k \lt j} c_ke_ie_je_k + \sum_{i\lt j \lt k} c_ke_ie_je_k \right) \\
+                            &= (a \cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( -c_ie_ie_ie_j + c_je_ie_je_j + \sum_{k\in[1..d] | k \lt i \lt j} c_ke_ke_ie_j + \sum_{i\lt k \lt j} -c_ke_ie_ke_j + \sum_{i\lt j \lt k} c_ke_ie_je_k \right) \\
+                            &= (a \cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( -c_ie_j + c_je_i + \sum_{k\in[1..d] | k \lt i \lt j} c_ke_ke_ie_j - \sum_{i\lt k \lt j} c_ke_ie_ke_j + \sum_{i\lt j \lt k} c_ke_ie_je_k \right) \\
+                            &= (a \cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( -c_{\perp_{i,j}} + \sum_{k\in[1..d] | k \lt i \lt j} c_ke_ke_ie_j - \sum_{i\lt k \lt j} c_ke_ie_ke_j + \sum_{i\lt j \lt k} c_ke_ie_je_k \right)
+                            \end{align*}
+                            $$
+                        </div>
+                        <p>The expression $-c_ie_j + c_je_i$ is a clockwise rotation by $\frac{\pi}{2}=90^\circ$ in the plane spanned by $e_i$ and $e_j$.</p>
+                        <p>Similarly, if we apply the geometric product to the right, we get:</p>
+                        <div class="math-display">
+                            $$
+                            \begin{align*}
+                            cab &= c(ab) = c(a \cdot b + a \wedge b) \\
+                            &= c(a \cdot b) + c(a \wedge b) \\
+                            &= c(a \cdot b) + \sum_{i,j\in[1..d] | i \lt j} c\langle a\wedge b\rangle_{i,j} (e_i \wedge e_j) \\
+                            &= (a\cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} ce_ie_j \\
+                            &= (a\cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( \sum_{k\in[1..d]} c_k e_k \right) e_i e_j \\
+                            &= (a\cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( \sum_{k\in[1..d]} c_k e_k e_i e_j \right) \\
+                            &= (a\cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( \sum_{k\in[1..d] | k = i} c_ie_ie_ie_j + \sum_{k\in[1..d] | k = j} c_je_je_ie_j + \sum_{k\in[1..d] | k \neq i,j} c_ke_ke_ie_j \right) \\
+                            &= (a\cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( c_ie_ie_ie_j + c_je_je_ie_j + \sum_{k\in[1..d] | k \lt i \lt j} c_ke_ke_ie_j + \sum_{i\lt k \lt j} c_ke_ke_ie_j + \sum_{i\lt j \lt k} c_ke_ke_ie_j \right) \\
+                            &= (a\cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( c_ie_ie_ie_j - c_je_ie_je_j + \sum_{k\in[1..d] | k \lt i \lt j} c_ke_ke_ie_j + \sum_{i\lt k \lt j} -c_ke_ie_ke_j + \sum_{i\lt j \lt k} c_ke_ie_je_k \right) \\
+                            &= (a\cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( c_ie_j - c_je_i + \sum_{k\in[1..d] | k \lt i \lt j} c_ke_ke_ie_j - \sum_{i\lt k \lt j} c_ke_ie_ke_j + \sum_{i\lt j \lt k} c_ke_ie_je_k \right) \\
+                            &= (a\cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( c_{\perp_{i,j}} + \sum_{k\in[1..d] | k \lt i \lt j} c_ke_ke_ie_j - \sum_{i\lt k \lt j} c_ke_ie_ke_j + \sum_{i\lt j \lt k} c_ke_ie_je_k \right)
+                            \end{align*}
+                            $$
+                        </div>
+                        <p>We can see that applying the geometric product to the left or right only differs in the component that is made up of the vectors that are orthogonal to c on each plane. This means that applying the geometric product to the left or right will yield a vector that is mirrored across $c$.</p>
+
+                        <p>For $\mathbb{R}^2$, this simplifies to:</p>
+                        <div class="math-display">
+                            $$
+                            \begin{align*}
+                            abc &= (a \cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( -c_{\perp_{i,j}} + \sum_{k\in[1..d] | k \lt i \lt j} c_ke_ke_ie_j + \sum_{i\lt k \lt j} -c_ke_ie_ke_j + \sum_{i\lt j \lt k} c_ke_ie_je_k \right) \\
+                            &= (a \cdot b)c + \langle a\wedge b\rangle_{1,2} \left( -c_{\perp_{1,2}} \right) \\
+                            &= (a \cdot b)c - \langle a\wedge b\rangle c_\perp \\
+                            cab &= (a\cdot b)c + \sum_{i,j\in[1..d] | i \lt j} \langle a\wedge b\rangle_{i,j} \left( c_{\perp_{i,j}} + \sum_{k\in[1..d] | k \lt i \lt j} c_ke_ke_ie_j - \sum_{i\lt k \lt j} c_ke_ie_ke_j + \sum_{i\lt j \lt k} c_ke_ie_je_k \right) \\
+                            &= (a\cdot b)c + \langle a\wedge b\rangle_{1,2} \left( c_{\perp_{1,2}} \right) \\
+                            &= (a\cdot b)c + \langle a\wedge b\rangle c_\perp
+                            \end{align*}
+                            $$
+                        </div>
+
+                        <p>For the magnitude of the result of a geometric product of three vectors we get:</p>
+                        <div class="math-display">
+                            $$
+                            \begin{align*}
+                            \|abc\| &= \|(a\cdot b)c - \langle a\wedge b\rangle c_\perp\| \\
+                            &= \sqrt{\| (a\cdot b)c \|^2 + \| \langle a\wedge b\rangle c_\perp \|^2} \\
+                            &= \sqrt{|a\cdot b|^2 + |\langle a\wedge b\rangle|^2} \cdot \|c\| \\
+                            &= \sqrt{(a\cdot b)^2 + \langle a\wedge b\rangle^2} \cdot \|c\| \\
+                            &= \sqrt{(\|a\|\|b\|\cos\theta)^2 + (\|a\|\|b\|\sin\theta)^2} \cdot \|c\| \\
+                            &= \|a\|\|b\|\|c\| \sqrt{\cos^2\theta + \sin^2\theta} = \|a\|\|b\|\|c\|
+                            \end{align*}
+                            $$
+                        </div>
+                        <p>We can see that the magnitude of the geometric product of three vectors is equal to the product of their magnitudes. This also means, that if we choose $a$ and $b$ to be unit vectors, the geometric product will have magnitude equal to that of $c$</p>
+                        <button id="example-geo-product" class="btn example-btn" title="See example of geometric product of three vectors">
+                            <i class="fa-solid fa-play"></i> See example
+                        </button>
+                        <p>Verify that the product is rotated by the angle between $a$ and $b$, by aligning $c$ with either of the vectors.</p>
+                        <p>In summary: The geometric product $ab$ in $\mathbb{R}^2$ represents a rotation by the angle between $a$ and $b$, and a scaling by the product of their magnitudes.</p>
                     </article>
                 </div>
             </div>

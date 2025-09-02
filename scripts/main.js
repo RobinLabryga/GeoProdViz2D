@@ -937,6 +937,47 @@ class VectorVisualizer {
             }
         });
 
+        // Example buttons
+        document.getElementById('example-dot-basis-parallel').addEventListener('click', () => {
+            this.loadExample(DOT_PARALLEL_BASIS_EXAMPLE);
+        });
+
+        document.getElementById('example-dot-basis-orthogonal').addEventListener('click', () => {
+            this.loadExample(DOT_ORTHOGONAL_BASIS_EXAMPLE);
+        });
+
+        document.getElementById('example-orthogonal').addEventListener('click', () => {
+            this.loadExample(DOT_ORTHOGONAL_EXAMPLE);
+        });
+
+        document.getElementById('example-codirectional').addEventListener('click', () => {
+            this.loadExample((DOT_CODIRECTIONAL_EXAMPLE));
+        });
+
+        document.getElementById('example-self').addEventListener('click', () => {
+            this.loadExample(DOT_SELF_EXAMPLE);
+        });
+
+        document.getElementById('example-sign-switch').addEventListener('click', () => {
+            this.loadExample(DOT_SIGN_SWITCH_EXAMPLE);
+        });
+
+        document.getElementById('example-wedge-basis-parallel').addEventListener('click', () => {
+            this.loadExample(WEDGE_PARALLEL_BASIS_EXAMPLE);
+        });
+
+        document.getElementById('example-wedge-basis-orthogonal').addEventListener('click', () => {
+            this.loadExample(WEDGE_ORTHOGONAL_BASIS_EXAMPLE);
+        });
+
+        document.getElementById('example-wedge-negative-basis-orthogonal').addEventListener('click', () => {
+            this.loadExample(WEDGE_NEGATIVE_ORTHOGONAL_BASIS_EXAMPLE);
+        });
+
+        document.getElementById('example-geo-product').addEventListener('click', () => {
+            this.loadExample(GEOMETRIC_PRODUCT_EXAMPLE);
+        });
+
         // Return button
         document.getElementById('return-button').addEventListener('click', () => {
             this.returnToPreviousPosition();
@@ -1357,7 +1398,37 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = VectorVisualizer;
 }
 
-const ORTHOGONAL_EXAMPLE = new VectorVisualizerState(
+const DOT_PARALLEL_BASIS_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(1, 0),
+        new Vector2(1, 0),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: true,
+    dot: true,
+    wedge: false,
+    prodABC: false,
+    prodCAB: false
+});
+
+const DOT_ORTHOGONAL_BASIS_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(1, 0),
+        new Vector2(0, 1),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: true,
+    dot: true,
+    wedge: false,
+    prodABC: false,
+    prodCAB: false
+});
+
+const DOT_ORTHOGONAL_EXAMPLE = new VectorVisualizerState(
     new VectorState(
         new Vector2(2, 1),
         new Vector2(-1, 2),
@@ -1372,7 +1443,7 @@ const ORTHOGONAL_EXAMPLE = new VectorVisualizerState(
     prodCAB: false
 });
 
-const CODIRECTIONAL_EXAMPLE = new VectorVisualizerState(
+const DOT_CODIRECTIONAL_EXAMPLE = new VectorVisualizerState(
     new VectorState(
         new Vector2(2, 1),
         new Vector2(-3, -1.5),
@@ -1387,7 +1458,7 @@ const CODIRECTIONAL_EXAMPLE = new VectorVisualizerState(
     prodCAB: false
 });
 
-const SELF_EXAMPLE = new VectorVisualizerState(
+const DOT_SELF_EXAMPLE = new VectorVisualizerState(
     new VectorState(
         new Vector2(2, 0),
         new Vector2(2, 0),
@@ -1400,4 +1471,139 @@ const SELF_EXAMPLE = new VectorVisualizerState(
     wedge: false,
     prodABC: false,
     prodCAB: false
+});
+
+const DOT_SIGN_SWITCH_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(2, -1),
+        new Vector2(1, 1),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: true,
+    dot: true,
+    wedge: false,
+    prodABC: false,
+    prodCAB: false
+});
+
+const WEDGE_PARALLEL_BASIS_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(1, 0),
+        new Vector2(1, 0),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: false,
+    dot: false,
+    wedge: true,
+    prodABC: false,
+    prodCAB: false
+});
+
+const WEDGE_ORTHOGONAL_BASIS_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(1, 0),
+        new Vector2(0, 1),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: false,
+    dot: false,
+    wedge: true,
+    prodABC: false,
+    prodCAB: false
+});
+
+const WEDGE_NEGATIVE_ORTHOGONAL_BASIS_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(0, 1),
+        new Vector2(1, 0),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: false,
+    dot: false,
+    wedge: true,
+    prodABC: false,
+    prodCAB: false
+});
+
+const WEDGE_ORTHOGONAL_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(2, 1),
+        new Vector2(-1, 2),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: false,
+    dot: false,
+    wedge: true,
+    prodABC: false,
+    prodCAB: false
+});
+
+const WEDGE_CODIRECTIONAL_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(2, 1),
+        new Vector2(-3, -1.5),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: false,
+    dot: false,
+    wedge: true,
+    prodABC: false,
+    prodCAB: false
+});
+
+const WEDGE_SELF_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(2, 0),
+        new Vector2(2, 0),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: false,
+    dot: false,
+    wedge: true,
+    prodABC: false,
+    prodCAB: false
+});
+
+const WEDGE_SIGN_SWITCH_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(2, -1),
+        new Vector2(1, 1),
+        new Vector2(0, 0)), {
+    a: true,
+    b: true,
+    c: false,
+    brot: false,
+    dot: false,
+    wedge: true,
+    prodABC: false,
+    prodCAB: false
+});
+
+const GEOMETRIC_PRODUCT_EXAMPLE = new VectorVisualizerState(
+    new VectorState(
+        new Vector2(5, 1).normalize(),
+        new Vector2(2, -1).normalize(),
+        new Vector2(1, 1)), {
+    a: true,
+    b: true,
+    c: true,
+    brot: false,
+    dot: false,
+    wedge: false,
+    prodABC: true,
+    prodCAB: true
 });
