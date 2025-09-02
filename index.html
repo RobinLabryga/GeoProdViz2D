@@ -103,7 +103,14 @@
                             <div class="vector-info-group">
                                 <span class="vector-color vector-a" data-vector-type="a" title="Toggle visibility"></span>
                                 <h3>$\vec{a} =$</h3>
-                                <h3 id="vector-a-display">$\begin{pmatrix}2.00 \\ 1.00\end{pmatrix}$</h3>
+                                <div id="vector-a-display" class="vector-display-matrix">
+                                    <span class="matrix-bracket left">(</span>
+                                    <div class="matrix-content">
+                                        <span class="draggable-number" data-vector="a" data-component="x" title="Drag up/down to change value">2.00</span>
+                                        <span class="draggable-number" data-vector="a" data-component="y" title="Drag up/down to change value">1.00</span>
+                                    </div>
+                                    <span class="matrix-bracket right">)</span>
+                                </div>
                             </div>
                             <button class="btn btn-normalize" id="normalize-a" title="Normalize">$\|\cdot\|$</button>
                             <button class="btn btn-toggle-norm" id="toggle-norm-a-btn" title="Toggle norm display">
@@ -123,7 +130,14 @@
                             <div class="vector-info-group">
                                 <span class="vector-color vector-b" data-vector-type="b" title="Toggle visibility"></span>
                                 <h3>$\vec{b} =$</h3>
-                                <h3 id="vector-b-display">$\begin{pmatrix}-1.00 \\ 1.00\end{pmatrix}$</h3>
+                                <div id="vector-b-display" class="vector-display-matrix">
+                                    <span class="matrix-bracket left">(</span>
+                                    <div class="matrix-content">
+                                        <span class="draggable-number" data-vector="b" data-component="x" title="Drag up/down to change value">-1.00</span>
+                                        <span class="draggable-number" data-vector="b" data-component="y" title="Drag up/down to change value">1.00</span>
+                                    </div>
+                                    <span class="matrix-bracket right">)</span>
+                                </div>
                             </div>
                             <button class="btn btn-normalize" id="normalize-b" title="Normalize">$\|\cdot\|$</button>
                             <button class="btn btn-toggle-norm" id="toggle-norm-b-btn" title="Toggle norm display">
@@ -143,7 +157,14 @@
                             <div class="vector-info-group">
                                 <span class="vector-color vector-c" data-vector-type="c" title="Toggle visibility"></span>
                                 <h3>$\vec{c} =$</h3>
-                                <h3 id="vector-c-display">$\begin{pmatrix}-1.00 \\ 0.00\end{pmatrix}$</h3>
+                                <div id="vector-c-display" class="vector-display-matrix">
+                                    <span class="matrix-bracket left">(</span>
+                                    <div class="matrix-content">
+                                        <span class="draggable-number" data-vector="c" data-component="x" title="Drag up/down to change value">-1.00</span>
+                                        <span class="draggable-number" data-vector="c" data-component="y" title="Drag up/down to change value">0.00</span>
+                                    </div>
+                                    <span class="matrix-bracket right">)</span>
+                                </div>
                             </div>
                             <button class="btn btn-normalize" id="normalize-c" title="Normalize">$\|\cdot\|$</button>
                             <button class="btn btn-toggle-norm" id="toggle-norm-c-btn" title="Toggle norm display">
@@ -230,6 +251,7 @@
                     <h3>Instructions</h3>
                     <ul>
                         <li>Drag the endpoints of vectors $\vec{a}$ and $\vec{b}$ to move them</li>
+                        <li>Drag vector components up/down to change their values</li>
                         <li>Click the color circles to hide/show corresponding elements</li>
                         <li>Use mouse wheel to zoom in/out</li>
                         <li>Use ctrl+z and ctrl+y to undo/redo actions</li>

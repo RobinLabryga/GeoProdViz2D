@@ -582,6 +582,72 @@ a:focus {
     line-height: 1;
 }
 
+/* Vector display styles */
+.vector-display-matrix {
+    display: inline-flex;
+    align-items: stretch;
+    font-family: var(--font-family-mono);
+    font-size: 1rem;
+    line-height: 1.2;
+}
+
+.matrix-bracket {
+    font-size: 3rem;
+    font-weight: 100;
+    display: flex;
+    align-items: center;
+    color: var(--color-text);
+    user-select: none;
+    transform: scaleX(0.4);
+    letter-spacing: -0.1em;
+}
+
+.matrix-bracket.left {
+    margin-right: 4px;
+}
+
+.matrix-bracket.right {
+    margin-left: 4px;
+}
+
+.matrix-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-width: 50px;
+}
+
+.draggable-number {
+    cursor: ns-resize;
+    user-select: none;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: var(--transition-fast);
+    display: block;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
+    font-family: var(--font-family-mono);
+    font-size: 0.9rem;
+    text-align: center;
+    min-height: 20px;
+    line-height: 1.2;
+}
+
+.draggable-number:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.draggable-number.dragging {
+    background-color: var(--color-primary);
+    color: white;
+    cursor: ns-resize;
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 .vector-column {
     display: flex;
     align-items: center;

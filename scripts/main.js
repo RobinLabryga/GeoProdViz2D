@@ -714,6 +714,21 @@ class VectorVisualizer {
 
     updateVectorDisplay(elementId, x, y) {
         const element = document.getElementById(elementId);
+
+        const matrixContent = element.querySelector('.matrix-content');
+        if (matrixContent) {
+            // New format with draggable spans in matrix
+            const xSpan = matrixContent.querySelector('[data-component="x"]');
+            const ySpan = matrixContent.querySelector('[data-component="y"]');
+
+            if (xSpan && ySpan) {
+                xSpan.textContent = x.toFixed(2);
+                ySpan.textContent = y.toFixed(2);
+                return;
+            }
+        }
+
+        // Fallback to LaTeX format for computed vectors
         const latex = `\\begin{pmatrix} ${x.toFixed(2)} \\\\ ${y.toFixed(2)} \\end{pmatrix}`;
 
         // Re-render MathJax if available
@@ -1002,6 +1017,105 @@ class VectorVisualizer {
                     this.hideReturnButton();
             }, 100);
         });
+
+        this.setupDraggableNumbers();
+    }
+
+    setupDraggableNumbers() {
+        this.numberDragState = {
+            isDragging: false,
+            element: null,
+            vector: null,
+            component: null,
+            startY: 0,
+            startValue: 0
+        };
+
+        const draggableNumbers = document.querySelectorAll('.draggable-number');
+
+        draggableNumbers.forEach(element => {
+            element.addEventListener('mousedown', this.onNumberMouseDown.bind(this));
+        });
+
+        document.addEventListener('mousemove', this.onNumberMouseMove.bind(this));
+        document.addEventListener('mouseup', this.onNumberMouseUp.bind(this));
+    }
+
+    onNumberMouseDown(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const element = event.target;
+        const vector = element.getAttribute('data-vector');
+        const component = element.getAttribute('data-component');
+
+        this.saveState();
+
+        this.numberDragState = {
+            isDragging: true,
+            element: element,
+            vector: vector,
+            component: component,
+            startY: event.clientY,
+            startValue: this.getVectorComponentValue(vector, component)
+        };
+
+        element.classList.add('dragging');
+        document.body.style.cursor = 'ns-resize';
+    }
+
+    onNumberMouseMove(event) {
+        if (!this.numberDragState.isDragging) return;
+
+        event.preventDefault();
+
+        const deltaY = this.numberDragState.startY - event.clientY;
+        const sensitivity = 0.01;
+        const newValue = this.numberDragState.startValue + (deltaY * sensitivity);
+
+        this.updateVectorComponent(this.numberDragState.vector, this.numberDragState.component, newValue);
+    }
+
+    onNumberMouseUp(event) {
+        if (!this.numberDragState.isDragging) return;
+
+        this.numberDragState.element.classList.remove('dragging');
+        document.body.style.cursor = '';
+
+        this.numberDragState = {
+            isDragging: false,
+            element: null,
+            vector: null,
+            component: null,
+            startY: 0,
+            startValue: 0
+        };
+    }
+
+    getVectorComponentValue(vectorType, component) {
+        const vector = this.state.vector[vectorType.toUpperCase()];
+        return component === 'x' ? vector.x : vector.y;
+    }
+
+    updateVectorComponent(vectorType, component, value) {
+        if (component === 'x') {
+            this.state.vector[vectorType.toUpperCase()].x = value;
+        } else if (component === 'y') {
+            this.state.vector[vectorType.toUpperCase()].y = value;
+        }
+
+        const vectorKey = vectorType.toUpperCase();
+        if (vectorKey === 'A') {
+            this.updateVector(this.vectorAMesh, this.state.vector.A);
+        } else if (vectorKey === 'B') {
+            this.updateVector(this.vectorBMesh, this.state.vector.B);
+            this.updateVector(this.vectorBRotMesh, this.state.vector.B.rotate());
+        } else if (vectorKey === 'C') {
+            this.updateVector(this.vectorCMesh, this.state.vector.C);
+        }
+
+        // Update all related calculations and displays
+        this.updateVectors();
     }
 
     getMousePosition(event) {
