@@ -97,56 +97,6 @@
     --z-tooltip: 1070;
 }
 
-/* Light theme override - same colors, different backgrounds/text */
-@media (prefers-color-scheme: light) {
-    :root {
-        /* Keep same color scheme */
-        /* --color-primary, --color-secondary, --color-accent stay the same */
-
-        /* Only change backgrounds, text, and shadows */
-        --color-text: hsl(210, 15%, 10%);
-        --color-text-muted: hsl(210, 10%, 35%);
-        --color-text-light: hsl(210, 8%, 55%);
-        --color-background: hsl(0, 0%, 100%);
-        --color-surface: hsl(210, 20%, 97%);
-        --color-border: hsl(210, 15%, 85%);
-        --color-border-light: hsl(210, 15%, 92%);
-
-        /* HSL values for use with alpha */
-        --color-background-hsl: 0, 0%, 100%;
-
-        /* Light theme shadows */
-        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-}
-
-/* Manual light theme toggle - same colors, different backgrounds/text */
-[data-theme="light"] {
-    /* Keep same color scheme */
-    /* --color-primary, --color-secondary, --color-accent stay the same */
-
-    /* Only change backgrounds, text, and shadows */
-    --color-text: hsl(210, 15%, 10%);
-    --color-text-muted: hsl(210, 10%, 35%);
-    --color-text-light: hsl(210, 8%, 55%);
-    --color-background: hsl(0, 0%, 100%);
-    --color-surface: hsl(210, 20%, 97%);
-    --color-border: hsl(210, 15%, 85%);
-    --color-border-light: hsl(210, 15%, 92%);
-
-    /* HSL values for use with alpha */
-    --color-background-hsl: 0, 0%, 100%;
-
-    /* Light theme shadows */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
 /* ===========================
    Reset & Base Styles
    =========================== */
