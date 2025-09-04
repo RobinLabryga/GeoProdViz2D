@@ -153,11 +153,6 @@ class VectorVisualizerState {
 
 class VectorVisualizer {
     constructor() {
-        // Zoom constants
-        this.MIN_ZOOM = 0.1;
-        this.MAX_ZOOM = 5;
-        this.DEFAULT_ZOOM = 1;
-
         this.scene = null;
         this.camera = null;
         this.renderer = null;
@@ -191,9 +186,16 @@ class VectorVisualizer {
         this.dragTarget = null;
         this.dragOffset = new THREE.Vector2();
 
-        // Camera controls
-        this.cameraTarget = new THREE.Vector2(0, 0);
-        this.zoom = this.DEFAULT_ZOOM;
+        // Camera
+        this.MIN_DISTANCE = 0.5;
+        this.MAX_DISTANCE = 100;
+        this.DEFAULT_DISTANCE = 10;
+        this.ZOOM_SENSITIVITY = 0.1;
+        this.cameraDistance = this.DEFAULT_DISTANCE;
+        this.cameraRotationY = 0;      // left/right rotation
+        this.cameraRotationX = 0;  // up/down rotation
+        this.isDraggingCanvas = false;
+        this.lastMousePosition = new THREE.Vector2();
 
         // History
         this.undoHistory = [];
@@ -266,14 +268,16 @@ class VectorVisualizer {
         const height = container.clientHeight;
         const aspect = width / height;
 
-        // Camera (orthographic for 2D)
-        const frustumSize = 10;
-        this.camera = new THREE.OrthographicCamera(
-            -frustumSize * aspect / 2, frustumSize * aspect / 2,
-            frustumSize / 2, -frustumSize / 2,
-            1, 1000
+        // Camera
+        const fov = 75; // in degrees
+        this.camera = new THREE.PerspectiveCamera(
+            fov,
+            aspect,
+            0.1,
+            1000
         );
-        this.camera.position.z = 100;
+
+        this.updateCameraPosition();
 
         // Renderer
         this.renderer = new THREE.WebGLRenderer({
@@ -298,12 +302,8 @@ class VectorVisualizer {
     }
 
     createGrid() {
-        // Calculate grid size based on zoom range
-        // At minimum zoom (0.1), frustumSize = 10 / 0.1 = 100
-        // We want the grid to fill the entire viewable area at min zoom
-        const maxViewSize = 10 / this.MIN_ZOOM; // 100 at min zoom
-        const gridSize = maxViewSize * 1.2; // 20% larger for buffer
-        const divisions = gridSize; // One division per 2 units
+        const gridSize = 2 * Math.ceil((2 / 3) * this.MAX_DISTANCE);
+        const divisions = gridSize;
 
         const grid = new THREE.GridHelper(gridSize, divisions, 0x334155, 0x1e293b);
         grid.rotation.x = Math.PI / 2;
@@ -323,9 +323,7 @@ class VectorVisualizer {
     createAxes() {
         const axesGroup = new THREE.Group();
 
-        // Calculate axes length to match grid size
-        const maxViewSize = 10 / this.MIN_ZOOM; // 100 at min zoom
-        const axesLength = maxViewSize * 0.6; // Slightly shorter than grid
+        const axesLength = Math.ceil((2 / 3) * this.MAX_DISTANCE);
 
         // X-axis (red)
         const xGeometry = new THREE.BufferGeometry().setFromPoints([
@@ -344,6 +342,15 @@ class VectorVisualizer {
         const yMaterial = new THREE.LineBasicMaterial({ color: 0x51cf66, linewidth: 2 });
         const yAxis = new THREE.Line(yGeometry, yMaterial);
         axesGroup.add(yAxis);
+
+        // Z-axis (blue)
+        const zGeometry = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, 0, -axesLength),
+            new THREE.Vector3(0, 0, axesLength)
+        ]);
+        const zMaterial = new THREE.LineBasicMaterial({ color: 0x6b5eff, linewidth: 2 });
+        const zAxis = new THREE.Line(zGeometry, zMaterial);
+        axesGroup.add(zAxis);
 
         this.axesMesh = axesGroup;
         this.scene.add(axesGroup);
@@ -881,16 +888,36 @@ class VectorVisualizer {
         this.renderer.setSize(width, height);
 
         const aspect = width / height;
-        const frustumSize = 10 / this.zoom;
-
-        this.camera.left = -frustumSize * aspect / 2;
-        this.camera.right = frustumSize * aspect / 2;
-        this.camera.top = frustumSize / 2;
-        this.camera.bottom = -frustumSize / 2;
         this.camera.aspect = aspect;
         this.camera.updateProjectionMatrix();
 
         this.needsRender = true;
+    }
+
+    updateCameraPosition() {
+        const position = new THREE.Vector3(0, 0, this.cameraDistance);
+
+        position.applyAxisAngle(new THREE.Vector3(1, 0, 0), this.cameraRotationX);
+        position.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.cameraRotationY);
+
+        this.camera.position.copy(position);
+        this.camera.lookAt(0, 0, 0);
+        this.camera.updateMatrixWorld();
+
+        // Hide Z-axis when camera is close to top-down view
+        this.updateZAxisVisibility();
+
+        this.needsRender = true;
+    }
+
+    updateZAxisVisibility() {
+        if (this.axesMesh && this.axesMesh.children.length >= 3) {
+            const zAxis = this.axesMesh.children[2]; // Z-axis is the third child
+            const rotationThreshold = 0.1; // Radians
+            
+            zAxis.visible = Math.abs(this.cameraRotationX) > rotationThreshold || 
+                                  Math.abs(this.cameraRotationY) > rotationThreshold;
+        }
     }
 
     updateVisibility(target, vectorType) {
@@ -1145,32 +1172,25 @@ class VectorVisualizer {
                 }
             }
 
-            // If no vector was selected, start panning with left mouse
             if (!vectorSelected) {
+                this.isDraggingCanvas = true;
+                this.lastMousePosition.set(event.clientX, event.clientY);
                 this.canvas.style.cursor = 'grabbing';
             }
         }
     }
 
-    onMouseMove(event) {
-        this.getMousePosition(event);
+    moveVector() {
+        // Use raycasting to find intersection with the XY plane (z = 0)
+        this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        if (this.isDragging && this.dragTarget) {
-            // Get exact mouse position in canvas coordinates
-            const rect = this.canvas.getBoundingClientRect();
-            const mouseX = event.clientX - rect.left;
-            const mouseY = event.clientY - rect.top;
+        // Create a plane at z = 0 to intersect with
+        const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+        const intersectionPoint = new THREE.Vector3();
 
-            // Convert to normalized device coordinates (-1 to 1)
-            const ndcX = (mouseX / rect.width) * 2 - 1;
-            const ndcY = -(mouseY / rect.height) * 2 + 1;
-
-            // Convert to world coordinates using camera frustum
-            const frustumSize = 10 / this.zoom;
-            const aspect = rect.width / rect.height;
-
-            const worldX = (ndcX * frustumSize * aspect / 2) + this.camera.position.x;
-            const worldY = (ndcY * frustumSize / 2) + this.camera.position.y;
+        if (this.raycaster.ray.intersectPlane(plane, intersectionPoint)) {
+            const worldX = intersectionPoint.x;
+            const worldY = intersectionPoint.y;
 
             // Update the appropriate vector
             if (this.dragTarget === 'a') {
@@ -1186,6 +1206,35 @@ class VectorVisualizer {
             }
 
             this.updateVectors();
+        }
+    }
+
+    rotateCamera(event) {
+        const deltaX = event.clientX - this.lastMousePosition.x;
+        const deltaY = event.clientY - this.lastMousePosition.y;
+
+        const rotationSpeed = 0.005;
+
+        this.cameraRotationY -= deltaX * rotationSpeed; // left/right
+        this.cameraRotationX -= deltaY * rotationSpeed; // up/down
+
+        const maxVerticalAngle = Math.PI / 3;
+        this.cameraRotationX = Math.max(-maxVerticalAngle, Math.min(maxVerticalAngle, this.cameraRotationX));
+
+        this.cameraRotationY = this.cameraRotationY % (2 * Math.PI);
+
+        this.updateCameraPosition();
+
+        this.lastMousePosition.set(event.clientX, event.clientY);
+    }
+
+    onMouseMove(event) {
+        this.getMousePosition(event);
+
+        if (this.isDragging && this.dragTarget) {
+            this.moveVector();
+        } else if (this.isDraggingCanvas) {
+            this.rotateCamera(event);
         } else {
             // Check if hovering over draggable objects
             this.raycaster.setFromCamera(this.mouse, this.camera);
@@ -1207,6 +1256,7 @@ class VectorVisualizer {
         if (event.button === 0) {
             this.isDragging = false;
             this.dragTarget = null;
+            this.isDraggingCanvas = false;
             this.canvas.style.cursor = 'default';
         }
     }
@@ -1214,23 +1264,9 @@ class VectorVisualizer {
     onWheel(event) {
         event.preventDefault();
 
-        const zoomSpeed = 0.1;
-        const zoomFactor = event.deltaY > 0 ? 1 + zoomSpeed : 1 - zoomSpeed;
+        this.cameraDistance = Math.max(this.MIN_DISTANCE, Math.min(this.MAX_DISTANCE, this.cameraDistance + event.deltaY * this.ZOOM_SENSITIVITY))
 
-        const currentZoom = this.zoom || this.DEFAULT_ZOOM;
-        const newZoom = Math.max(this.MIN_ZOOM, Math.min(this.MAX_ZOOM, currentZoom * zoomFactor));
-        this.zoom = newZoom;
-
-        const frustumSize = 10 / this.zoom;
-        const aspect = this.camera.aspect;
-
-        this.camera.left = -frustumSize * aspect / 2;
-        this.camera.right = frustumSize * aspect / 2;
-        this.camera.top = frustumSize / 2;
-        this.camera.bottom = -frustumSize / 2;
-        this.camera.updateProjectionMatrix();
-
-        this.needsRender = true;
+        this.updateCameraPosition();
     }
 
     onWindowResize() {
@@ -1265,20 +1301,11 @@ class VectorVisualizer {
     resetVectors() {
         this.setState(new VectorVisualizerState());
 
-        // Reset camera and zoom
-        this.zoom = this.DEFAULT_ZOOM;
-        this.cameraTarget.set(0, 0);
-        this.camera.position.set(0, 0, 100);
-
-        const frustumSize = 10 / this.zoom;
-        const aspect = this.camera.aspect;
-        this.camera.left = -frustumSize * aspect / 2;
-        this.camera.right = frustumSize * aspect / 2;
-        this.camera.top = frustumSize / 2;
-        this.camera.bottom = -frustumSize / 2;
-        this.camera.updateProjectionMatrix();
-
-        this.needsRender = true;
+        // Reset camera
+        this.cameraDistance = this.DEFAULT_DISTANCE;
+        this.cameraRotationY = 0;
+        this.cameraRotationX = 0;
+        this.updateCameraPosition();
     }
 
     toggleGrid() {
